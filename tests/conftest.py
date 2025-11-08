@@ -1,0 +1,8 @@
+"""Configuration pytest pour les tests."""
+
+import sys
+from pathlib import Path
+
+# Ajoute le répertoire src au path pour les imports
+src_path = Path(__file__).parent.parent / "src"
+sys.path.insert(0, str(src_path))

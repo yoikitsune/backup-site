@@ -4,8 +4,9 @@ Solution CLI de sauvegarde de site web avec support Docker, optimisée pour Word
 
 ## 📊 État du projet
 
-### ✅ Fonctionnalités complètes et testées (US4)
+### ✅ Fonctionnalités complètes et testées
 
+**Phase 1 - Configuration (US4)** ✅
 - [x] Configuration YAML avec validation Pydantic
 - [x] Gestion sécurisée des clés SSH
 - [x] Test de connexion SSH
@@ -13,9 +14,15 @@ Solution CLI de sauvegarde de site web avec support Docker, optimisée pour Word
 - [x] Support des patterns inclusion/exclusion
 - [x] Environnement de test Docker
 
+**Phase 2 - Sauvegarde des fichiers (US1)** ✅
+- [x] Sauvegarde des fichiers via SSH avec compression côté serveur
+- [x] Patterns d'inclusion/exclusion (compatible GNU tar et BusyBox tar)
+- [x] Archive tar.gz compressée
+- [x] Tests unitaires et d'intégration
+- [x] Commande CLI : `backup-site backup files <config>`
+
 ### 🚀 En développement
 
-- [ ] Sauvegarde des fichiers (US1)
 - [ ] Sauvegarde de la base de données MySQL (US2)
 - [ ] Exécution via Docker (US7)
 
@@ -128,6 +135,12 @@ backup-site ssh setup-guide               # Afficher le guide de configuration S
 backup-site ssh test <config>             # Tester la connexion SSH
 ```
 
+### Sauvegarde
+```bash
+backup-site backup files <config>         # Sauvegarder les fichiers
+backup-site backup files <config> -o <path>  # Sauvegarder avec chemin personnalisé
+```
+
 ### Utilitaires
 ```bash
 backup-site --version                     # Afficher la version
@@ -140,6 +153,30 @@ backup-site -v <commande>                 # Mode verbose
 - Les fichiers de configuration contenant des identifiants ne sont pas suivis par Git
 - Utilisez toujours des chemins relatifs pour les clés SSH
 - Ne partagez jamais vos fichiers de configuration avec des informations sensibles
+
+## 🧪 Tests
+
+Pour plus de détails sur les tests, voir [TESTING.md](TESTING.md).
+
+### Tests unitaires
+```bash
+poetry run pytest tests/ -v
+```
+
+### Tests d'intégration avec Docker
+```bash
+# Démarrer le serveur SSH de test
+cd docker/test-ssh-server && docker compose -f compose.yml up -d && sleep 5 && cd ../../
+
+# Lancer la sauvegarde
+backup-site backup files config/test-docker.yaml -o backups/test_backup.tar.gz
+
+# Vérifier l'archive
+tar -tzf backups/test_backup.tar.gz
+
+# Arrêter le serveur
+cd docker/test-ssh-server && docker compose -f compose.yml down && cd ../../
+```
 
 ## 📁 Développement
 

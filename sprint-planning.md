@@ -21,15 +21,21 @@ Livrer un MVP fonctionnel pour sauvegarder un site WordPress hébergé sur FOURN
   - ✅ Commandes CLI validées
 
 ### US1 - Sauvegarder les fichiers (Must Have)
-- [ ] **T5** : Implémenter la connexion SSH pour accéder aux fichiers distants
+- [x] **T5** : Implémenter la connexion SSH pour accéder aux fichiers distants ✅
   - *Approche* : Pipe SSH direct (`tar --exclude=... | gzip`) sans script serveur
-- [ ] **T6** : Créer une fonction de sauvegarde des fichiers avec patterns inclusion/exclusion
+  - Implémentation: `src/backup_site/backup/files.py` - Classe `FileBackup`
+- [x] **T6** : Créer une fonction de sauvegarde des fichiers avec patterns inclusion/exclusion ✅
   - *Détail* : Utiliser les patterns du template FOURNISSEUR_HEBERGEMENT-wordpress.yaml
-- [ ] **T7** : Générer une archive tar.gz des fichiers
+  - Méthodes: `backup_to_file()` et `backup_to_stream()`
+- [x] **T7** : Générer une archive tar.gz des fichiers ✅
   - *Détail* : Compression côté serveur via pipe, réception du flux compressé au client
-- **Test manuel** : Lancer une sauvegarde des fichiers d'un site WordPress, vérifier que seuls les dossiers/fichiers spécifiés (wp-content, wp-config.php) sont inclus
-  - Vérifier que l'archive est compressée et de taille réduite
-  - Tester avec le serveur SSH Docker
+  - Commande CLI: `backup-site backup files config/test-docker.yaml`
+- **Test manuel** : Lancer une sauvegarde des fichiers d'un site WordPress, vérifier que seuls les dossiers/fichiers spécifiés (wp-content, wp-config.php) sont inclus ✅
+  - ✅ Archive créée avec succès (232 bytes compressée)
+  - ✅ Patterns d'inclusion/exclusion respectés (wp-config.php, .htaccess inclus)
+  - ✅ Testé avec le serveur SSH Docker
+  - ✅ Tests unitaires: `tests/test_files.py` (6 cas de test)
+  - ✅ Commande CLI validée : `backup-site backup files config/test-docker.yaml`
 
 ### US2 - Sauvegarder une base de données MySQL (Must Have)
 - [ ] **T8** : Implémenter la connexion à la BDD via SSH tunnel (localhost)

@@ -157,6 +157,97 @@ def validate(config_file: str, show_secrets: bool) -> None:
 
 
 @main.group()
+def backup() -> None:
+    """Gestion des sauvegardes."""
+    pass
+
+
+@backup.command()
+@click.argument('config_file', type=click.Path(exists=True, dir_okay=False, readable=True))
+@click.option('--output', '-o', type=click.Path(dir_okay=False, writable=True),
+              help="Chemin de sortie de l'archive (par défaut: backups/backup-{timestamp}.tar.gz)")
+@click.option('--passphrase', prompt=False, hide_input=True, default=None,
+              help="Passphrase de la clé SSH (si elle en a une)")
+def files(config_file: str, output: Optional[str], passphrase: Optional[str]) -> None:
+    """Sauvegarde les fichiers d'un site web.
+    
+    CONFIG_FILE est le chemin vers le fichier de configuration
+    """
+    from datetime import datetime
+    from backup_site.config import load_config
+    from backup_site.utils.ssh import SSHKeyValidator
+    from backup_site.backup.files import FileBackup
+    import paramiko
+    
+    try:
+        # Charge la configuration
+        console.print("[cyan]Chargement de la configuration...[/]")
+        config = load_config(Path(config_file))
+        ssh_config = config.ssh
+        files_config = config.files
+        backup_config = config.backup
+        
+        # Valide les clés SSH
+        console.print("[cyan]Validation des clés SSH...[/]")
+        SSHKeyValidator.validate_key_file(ssh_config.private_key_path, "private")
+        
+        # Établit la connexion SSH
+        console.print(f"[cyan]Connexion à {ssh_config.host}:{ssh_config.port}...[/]")
+        ssh_client = paramiko.SSHClient()
+        ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        
+        try:
+            key = SSHKeyValidator.load_private_key(ssh_config.private_key_path, passphrase)
+            ssh_client.connect(
+                hostname=ssh_config.host,
+                port=ssh_config.port,
+                username=ssh_config.user,
+                pkey=key,
+                timeout=30
+            )
+            print_success("Connexion SSH établie")
+        except Exception as e:
+            print_error(f"Impossible de se connecter: {e}")
+        
+        # Crée le gestionnaire de sauvegarde
+        file_backup = FileBackup(
+            ssh_client=ssh_client,
+            remote_path=str(files_config.remote_path),
+            include_patterns=files_config.include_patterns,
+            exclude_patterns=files_config.exclude_patterns,
+        )
+        
+        # Détermine le chemin de sortie
+        if output:
+            output_path = Path(output)
+        else:
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            backup_dir = Path(backup_config.destination)
+            output_path = backup_dir / f"backup_{timestamp}.tar.gz"
+        
+        # Lance la sauvegarde
+        console.print(f"\n[cyan]Sauvegarde des fichiers...[/]")
+        console.print(f"[dim]Chemin distant: {files_config.remote_path}[/]")
+        console.print(f"[dim]Patterns d'inclusion: {len(files_config.include_patterns)}[/]")
+        console.print(f"[dim]Patterns d'exclusion: {len(files_config.exclude_patterns)}[/]")
+        
+        success, message, bytes_written = file_backup.backup_to_file(output_path)
+        
+        if success:
+            console.print(f"\n{message}")
+            console.print(f"[green]Archive créée: {output_path}[/]")
+        
+    except Exception as e:
+        print_error(f"Erreur lors de la sauvegarde: {e}")
+    finally:
+        # Ferme la connexion SSH
+        try:
+            ssh_client.close()
+        except:
+            pass
+
+
+@main.group()
 def ssh() -> None:
     """Gestion des clés SSH et connexions."""
     pass

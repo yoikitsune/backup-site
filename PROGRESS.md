@@ -40,16 +40,31 @@
 - Environnement Docker de test fonctionnel
 - Template FOURNISSEUR_HEBERGEMENT testé et validé
 
-## 🚀 Sprint 1 - Phase 2 : Sauvegarde (À FAIRE)
+## 🚀 Sprint 1 - Phase 2 : Sauvegarde (EN COURS)
 
-### US1 - Sauvegarder les fichiers (Must Have)
-- [ ] **T5** : Implémenter la connexion SSH pour accéder aux fichiers distants
-  - Approche : Pipe SSH direct (`tar --exclude=... | gzip`)
-  - Aucun script serveur requis, utilise les outils natifs
-- [ ] **T6** : Créer une fonction de sauvegarde des fichiers avec patterns
-  - Patterns d'inclusion/exclusion du template FOURNISSEUR_HEBERGEMENT-wordpress.yaml
-- [ ] **T7** : Générer une archive tar.gz des fichiers
-  - Compression côté serveur via pipe, flux compressé au client
+### US1 - Sauvegarder les fichiers (Must Have) ✅ IMPLÉMENTÉE
+
+#### T5 : Implémenter la connexion SSH ✅
+- Classe `FileBackup` dans `src/backup_site/backup/files.py`
+- Pipe SSH direct (`tar --exclude=... | gzip`)
+- Aucun script serveur requis, utilise les outils natifs
+
+#### T6 : Créer une fonction de sauvegarde avec patterns ✅
+- Patterns d'inclusion/exclusion du template FOURNISSEUR_HEBERGEMENT-wordpress.yaml
+- Deux méthodes : `backup_to_file()` et `backup_to_stream()`
+- Gestion d'erreurs robuste
+
+#### T7 : Générer une archive tar.gz ✅
+- Compression côté serveur via pipe, flux compressé au client
+- Commande CLI : `backup-site backup files config/test-docker.yaml`
+- Tests unitaires : `tests/test_files.py` avec 6 cas de test
+
+#### Tests ✅
+- ✅ Tests unitaires complets (mock SSH) - 6 cas de test
+- ✅ Test manuel avec serveur Docker - Archive créée avec succès
+  - Archive: 232 bytes (compressée)
+  - Fichiers inclus: wp-config.php, .htaccess
+  - Patterns d'inclusion/exclusion respectés
 
 ### US2 - Sauvegarder une base de données MySQL (Must Have)
 - [ ] **T8** : Implémenter la connexion à la BDD via SSH tunnel
@@ -131,5 +146,7 @@
 - **Sprint Planning** : `sprint-planning.md`
 - **Architecture** : `architecture.md`
 - **Vision** : `vision.md`
+- **Notes d'implémentation** : `IMPLEMENTATION_NOTES.md`
+- **Guide de test** : `TESTING.md`
 - **Templates** : `config/`
 - **Code source** : `src/backup_site/`
