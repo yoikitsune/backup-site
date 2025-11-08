@@ -1,0 +1,98 @@
+# Configuration pour un site WordPress sur FOURNISSEUR_HEBERGEMENT
+# Copiez ce fichier en config/mon-site.yaml et modifiez les valeurs
+
+site:
+  name: "mon-site-wordpress"
+  provider: "FOURNISSEUR_HEBERGEMENT"
+  app_type: "wordpress"
+  
+# Configuration SSH pour FOURNISSEUR_HEBERGEMENT
+ssh:
+  host: "ssh.FOURNISSEUR_HEBERGEMENT.net"
+  user: "votre_identifiant_FOURNISSEUR_HEBERGEMENT"
+  # Chemin relatif au dossier du projet ou chemin absolu
+  public_key_path: "~/.ssh/id_rsa.pub"
+  private_key_path: "~/.ssh/id_rsa"
+  port: 22
+
+# Configuration des fichiers
+files:
+  # Chemin distant sur le serveur FOURNISSEUR_HEBERGEMENT
+  remote_path: "/home/votre_identifiant/www"
+  
+  # Fichiers/dossiers à inclure (support des patterns glob)
+  include_patterns:
+    - "wp-content/**"
+    - "wp-config.php"
+    - ".htaccess"
+    - "wp-cron.php"
+    - "xmlrpc.php"
+    - "index.php"
+    - "license.txt"
+    - "readme.html"
+    - "wp-activate.php"
+    - "wp-blog-header.php"
+    - "wp-comments-post.php"
+    - "wp-config-sample.php"
+    - "wp-cron.php"
+    - "wp-links-opml.php"
+    - "wp-load.php"
+    - "wp-login.php"
+    - "wp-mail.php"
+    - "wp-settings.php"
+    - "wp-signup.php"
+    - "wp-trackback.php"
+  
+  # Fichiers/dossiers à exclure (prioritaire sur include_patterns)
+  exclude_patterns:
+    - "wp-content/cache/**"
+    - "wp-content/upgrade/**"
+    - "wp-content/backup-*/**"
+    - "*.log"
+    - "*.tmp"
+    - "*.swp"
+    - ".DS_Store"
+    - ".git/"
+    - ".gitignore"
+    - "node_modules/"
+    - "*.sql"
+    - ".env"
+
+# Configuration de la base de données
+database:
+  # Sur FOURNISSEUR_HEBERGEMENT, la BDD est accessible en localhost via SSH
+  host: "localhost"
+  name: "votre_identifiant_bdd"
+  user: "votre_identifiant_bdd"
+  # Le mot de passe sera chiffré au premier lancement
+  password: "votre_mot_de_passe_bdd"
+  port: 3306
+
+# Paramètres de sauvegarde
+backup:
+  # Dossier de destination des sauvegardes (relatif au répertoire du projet)
+  destination: "backups"
+  
+  # Compression (gzip, bzip2, xz, none)
+  compression: "gzip"
+  
+  # Rétention des sauvegardes (en jours)
+  retention_days: 30
+  
+  # Préfixe pour les noms de fichiers de sauvegarde
+  prefix: "backup"
+
+# Options avancées
+options:
+  # Exécuter WP-CLI avant/après la sauvegarde
+  wp_cli:
+    before_backup:
+      - "cache flush"
+      - "maintenance-mode activate"
+    after_backup:
+      - "maintenance-mode deactivate"
+  
+  # Notifications (bientôt disponible)
+  # notifications:
+  #   email: "votre@email.com"
+  #   webhook: "https://votre-webhook.com"

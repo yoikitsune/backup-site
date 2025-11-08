@@ -1,0 +1,11 @@
+services:
+  test-ssh:
+    build: .
+    ports:
+      - "2222:22"
+    volumes:
+      - ./ssh-keys:/home/testuser/.ssh:rw
+    environment:
+      - TERM=xterm
+    container_name: backup-site-test-ssh
+    restart: unless-stopped

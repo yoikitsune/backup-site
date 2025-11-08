@@ -1,0 +1,74 @@
+# Fichiers de configuration sensibles
+config/*.yaml
+!config/example-*.yaml
+
+# Environnements virtuels
+.venv
+env/
+venv/
+ENV/
+
+# Fichiers de cache Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Fichiers de sauvegarde
+*.bak
+*.swp
+*~
+
+# Fichiers de configuration IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Fichiers de log
+*.log
+
+# Fichiers de base de données
+*.db
+*.sqlite3
+
+# Fichiers temporaires
+/tmp/
+/temp/
+
+# Fichiers de sauvegarde générés
+/backups/
+!backups/.gitkeep
+
+# Fichiers de configuration locaux
+.env
+.env.*
+!.env.example
+
+# Fichiers de cache
+.cache/
+.pytest_cache/
+.mypy_cache/
+
+# Fichiers de couverture de test
+htmlcov/
+.coverage
+.coverage.*
+.coverage*

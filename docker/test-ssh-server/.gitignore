@@ -1,0 +1,12 @@
+# Fichiers générés
+ssh-keys/
+backups/
+
+# Fichiers de configuration de test
+test-ssh-keys/
+
+# Logs
+*.log
+
+# Docker
+.docker/
