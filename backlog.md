@@ -4,6 +4,7 @@
 
 ### Fonctionnalités principales
 - [ ] **US1** : En tant que développeur, je veux sauvegarder les fichiers d'un site web
+  - *Détail* : Compression côté serveur via pipe SSH (`tar | gzip`) pour accélérer la récupération
 - [ ] **US2** : En tant que développeur, je veux sauvegarder une base de données MySQL/MariaDB
 - [ ] **US3** : En tant que développeur, je veux restaurer une sauvegarde complète (fichiers + BDD)
 

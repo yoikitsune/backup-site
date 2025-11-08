@@ -44,8 +44,12 @@
 
 ### US1 - Sauvegarder les fichiers (Must Have)
 - [ ] **T5** : Implémenter la connexion SSH pour accéder aux fichiers distants
+  - Approche : Pipe SSH direct (`tar --exclude=... | gzip`)
+  - Aucun script serveur requis, utilise les outils natifs
 - [ ] **T6** : Créer une fonction de sauvegarde des fichiers avec patterns
+  - Patterns d'inclusion/exclusion du template FOURNISSEUR_HEBERGEMENT-wordpress.yaml
 - [ ] **T7** : Générer une archive tar.gz des fichiers
+  - Compression côté serveur via pipe, flux compressé au client
 
 ### US2 - Sauvegarder une base de données MySQL (Must Have)
 - [ ] **T8** : Implémenter la connexion à la BDD via SSH tunnel

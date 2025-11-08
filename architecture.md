@@ -152,6 +152,10 @@ backup:
 - Validation des chemins de fichiers
 
 ### Performance
+- **Compression côté serveur** : Via pipe SSH (`tar --exclude=... | gzip`)
+  - Justification : Réduit la bande passante réseau, accélère la récupération des backups
+  - Implémentation : Aucun script côté serveur requis, utilise les outils natifs
+  - Flux : Client SSH → Commande tar compressée → Pipe direct au client
 - Compression adaptative selon la taille
 - Parallélisation possible pour gros volumes
 - Progress indicators
