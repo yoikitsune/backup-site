@@ -14,6 +14,11 @@ Livrer un MVP fonctionnel pour sauvegarder un site WordPress hébergé sur FOURN
 - [x] **T3** : Ajouter la gestion sécurisée des clés SSH publiques/privées pour FOURNISSEUR_HEBERGEMENT ✅
 - [x] **T4** : Créer un template de configuration FOURNISSEUR_HEBERGEMENT + WordPress ✅
 - **Test manuel** : Créer une configuration pour un site WordPress sur FOURNISSEUR_HEBERGEMENT, vérifier que les clés SSH et accès BDD sont bien stockés ✅
+  - ✅ Configuration YAML validée avec Pydantic
+  - ✅ Connexion SSH testée avec succès
+  - ✅ Template FOURNISSEUR_HEBERGEMENT-wordpress fonctionnel
+  - ✅ Environnement Docker de test opérationnel
+  - ✅ Commandes CLI validées
 
 ### US1 - Sauvegarder les fichiers (Must Have)
 - [ ] **T5** : Implémenter la connexion SSH pour accéder aux fichiers distants

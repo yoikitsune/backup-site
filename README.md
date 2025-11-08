@@ -2,6 +2,23 @@
 
 Solution CLI de sauvegarde de site web avec support Docker, optimisée pour WordPress sur FOURNISSEUR_HEBERGEMENT.
 
+## 📊 État du projet
+
+### ✅ Fonctionnalités complètes et testées (US4)
+
+- [x] Configuration YAML avec validation Pydantic
+- [x] Gestion sécurisée des clés SSH
+- [x] Test de connexion SSH
+- [x] Template optimisé pour WordPress sur FOURNISSEUR_HEBERGEMENT
+- [x] Support des patterns inclusion/exclusion
+- [x] Environnement de test Docker
+
+### 🚀 En développement
+
+- [ ] Sauvegarde des fichiers (US1)
+- [ ] Sauvegarde de la base de données MySQL (US2)
+- [ ] Exécution via Docker (US7)
+
 ## 🐛 Installation
 
 ```bash
@@ -66,7 +83,57 @@ backup-site/
 
 ## 🛠️ Configuration
 
-Créez un fichier `config/votre-site.yaml` en vous basant sur `config/example-site.yaml`.
+### Fichiers de configuration disponibles
+
+- **`config/example-site.yaml`** : Configuration générique de base
+- **`config/FOURNISSEUR_HEBERGEMENT-wordpress.yaml`** : Template optimisé pour WordPress sur FOURNISSEUR_HEBERGEMENT (recommandé)
+
+### Créer votre configuration
+
+1. Copiez un template :
+   ```bash
+   cp config/FOURNISSEUR_HEBERGEMENT-wordpress.yaml config/mon-site.yaml
+   ```
+
+2. Éditez avec vos paramètres :
+   ```bash
+   nano config/mon-site.yaml
+   ```
+
+3. Validez la configuration :
+   ```bash
+   backup-site config validate config/mon-site.yaml
+   ```
+
+4. Testez la connexion SSH :
+   ```bash
+   backup-site ssh test config/mon-site.yaml
+   ```
+
+### Structure d'une configuration
+
+Voir `config/README.md` pour les détails sur les templates et les sections disponibles.
+
+## 📋 Commandes disponibles
+
+### Configuration
+```bash
+backup-site config init <output>          # Créer une config de base
+backup-site config validate <config>      # Valider une configuration
+```
+
+### SSH
+```bash
+backup-site ssh setup-guide               # Afficher le guide de configuration SSH
+backup-site ssh test <config>             # Tester la connexion SSH
+```
+
+### Utilitaires
+```bash
+backup-site --version                     # Afficher la version
+backup-site --help                        # Afficher l'aide
+backup-site -v <commande>                 # Mode verbose
+```
 
 ## 🛠️ Sécurité
 
