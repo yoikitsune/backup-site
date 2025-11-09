@@ -53,13 +53,24 @@ Livrer un MVP fonctionnel pour sauvegarder un site WordPress hébergé sur FOURN
   - ✅ Tests unitaires: `tests/test_database.py` (6 cas de test)
 
 ### US7 - Configurer Docker pour reproduire la production (Must Have)
-- [ ] **T11** : Créer un docker-compose.yml configurable avec WordPress, PHP, MySQL/MariaDB
+- [x] **T11** : Créer un docker-compose.yml configurable avec WordPress, PHP, MySQL/MariaDB ✅
   - Variables d'environnement pour les versions (PHP_VERSION, MYSQL_VERSION)
   - Service SSH pour accéder aux fichiers
   - Service MySQL pour la base de données
   - Service WordPress avec Apache
-- [ ] **T12** : Documenter comment configurer les versions et lancer l'environnement
-- **Test manuel** : Lancer `docker compose up` avec différentes versions, vérifier que WordPress est accessible
+  - Fichiers créés :
+    - `docker/production-test/docker-compose.yml`
+    - `docker/production-test/.env.example`
+    - `docker/production-test/ssh-server/Dockerfile`
+    - `docker/production-test/ssh-server/entrypoint.sh`
+    - `docker/production-test/README.md`
+- [x] **T12** : Tester l'environnement et documenter les cas d'usage ✅
+  - Environnement testé et fonctionnel
+  - Services : WordPress (PHP 8.2), MySQL 8.0, SSH
+  - Documentation complète : `docker/production-test/README.md`
+  - Guide de test : `docker/production-test/TESTING.md`
+  - Ports configurables : WordPress 8080, MySQL 3307, SSH 2222
+- **Test manuel** : ✅ Lancer `docker compose up` avec différentes versions, vérifier que WordPress est accessible
 
 ### US8 - Intégrer une sauvegarde dans Docker pour la tester (Must Have)
 - [ ] **T13** : Créer un script pour restaurer les fichiers d'une sauvegarde dans le Docker

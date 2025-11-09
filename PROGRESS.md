@@ -88,8 +88,22 @@
   - Table wp_posts avec données incluses
 
 ### US7 - Configurer Docker pour reproduire la production (Must Have)
-- [ ] **T11** : Créer un docker-compose.yml configurable avec WordPress, PHP, MySQL/MariaDB
-- [ ] **T12** : Documenter comment configurer les versions et lancer l'environnement
+- [x] **T11** : Créer un docker-compose.yml configurable avec WordPress, PHP, MySQL/MariaDB ✅
+  - Services : WordPress (PHP 8.2), MySQL 8.0, SSH
+  - Variables d'environnement pour les versions
+  - Volumes pour les données persistantes
+  - Healthchecks pour vérifier que les services sont prêts
+  - Fichiers créés :
+    - `docker/production-test/docker-compose.yml`
+    - `docker/production-test/.env.example`
+    - `docker/production-test/ssh-server/Dockerfile`
+    - `docker/production-test/ssh-server/entrypoint.sh`
+    - `docker/production-test/README.md`
+- [x] **T12** : Tester l'environnement et documenter les cas d'usage ✅
+  - Environnement testé et fonctionnel
+  - Services : WordPress (PHP 8.2), MySQL 8.0, SSH
+  - Documentation : `docker/production-test/README.md` et `TESTING.md`
+  - Ports : WordPress 8080, MySQL 3307, SSH 2222
 
 ### US8 - Intégrer une sauvegarde dans Docker pour la tester (Must Have)
 - [ ] **T13** : Créer un script pour restaurer les fichiers d'une sauvegarde dans le Docker

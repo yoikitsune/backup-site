@@ -1,0 +1,73 @@
+version: '3.8'
+
+services:
+  # Base de données MySQL/MariaDB
+  mysql:
+    image: mysql:${MYSQL_VERSION:-8.0}
+    container_name: backup-test-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-wordpress}
+      MYSQL_USER: ${MYSQL_USER:-wordpress}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-wordpress}
+    ports:
+      - "${MYSQL_PORT:-3307}:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - backup-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+
+  # WordPress avec Apache
+  wordpress:
+    image: wordpress:${WORDPRESS_VERSION:-6.4}-apache
+    container_name: backup-test-wordpress
+    environment:
+      WORDPRESS_DB_HOST: mysql:3306
+      WORDPRESS_DB_USER: ${MYSQL_USER:-wordpress}
+      WORDPRESS_DB_PASSWORD: ${MYSQL_PASSWORD:-wordpress}
+      WORDPRESS_DB_NAME: ${MYSQL_DATABASE:-wordpress}
+    ports:
+      - "${WORDPRESS_PORT:-8080}:80"
+    volumes:
+      - wordpress_data:/var/www/html
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - backup-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost"]
+      timeout: 20s
+      retries: 10
+
+  # Serveur SSH pour accéder aux fichiers (pour les sauvegardes)
+  ssh-server:
+    build:
+      context: ./ssh-server
+      dockerfile: Dockerfile
+    container_name: backup-test-ssh
+    environment:
+      SSH_USER: ${SSH_USER:-testuser}
+      SSH_PASSWORD: ${SSH_PASSWORD:-testpass}
+    ports:
+      - "${SSH_PORT:-2222}:22"
+    volumes:
+      - wordpress_data:/home/${SSH_USER:-testuser}/www
+      - backups:/home/${SSH_USER:-testuser}/backups
+    depends_on:
+      - wordpress
+    networks:
+      - backup-network
+
+volumes:
+  mysql_data:
+  wordpress_data:
+  backups:
+
+networks:
+  backup-network:
+    driver: bridge
