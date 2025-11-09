@@ -28,10 +28,23 @@ Solution CLI de sauvegarde de site web avec support Docker, optimisée pour Word
 - [x] Tests unitaires complets
 - [x] Commande CLI : `backup-site backup database <config>`
 
-### 🚀 En développement
+**Phase 4 - Restauration des fichiers (US8)** ✅
+- [x] Restauration des fichiers depuis archive tar.gz
+- [x] Transfert SFTP + extraction SSH
+- [x] Tests unitaires complets
+- [x] Commande CLI : `backup-site restore files <archive> <config>`
 
-- [ ] **US7** : Configurer Docker pour reproduire la production (versions PHP, MySQL)
-- [ ] **US8** : Intégrer une sauvegarde dans Docker pour la tester
+**Phase 5 - Restauration de la BDD (US8)** ✅
+- [x] Restauration MySQL depuis dump SQL
+- [x] Support fichiers compressés et non-compressés
+- [x] Tests unitaires complets
+- [x] Commande CLI : `backup-site restore database <dump> <config>`
+
+**Phase 6 - Docker production-test (US7)** ✅
+- [x] docker-compose.yml avec WordPress, MySQL, SSH
+- [x] Configuration par variables d'environnement
+- [x] Support des versions PHP, MySQL, WordPress
+- [x] Documentation complète
 
 ## 🐛 Installation
 
@@ -191,7 +204,47 @@ docker compose exec mysql mysql -u wordpress -p wordpress < /backups/database.sq
 docker compose down
 ```
 
-Pour plus de détails, voir [DOCKER_TESTING.md](DOCKER_TESTING.md) (à venir).
+Pour plus de détails, voir [docker/production-test/WORKFLOW.md](docker/production-test/WORKFLOW.md).
+
+## 🚀 Test en production réelle
+
+Pour tester backup-site avec un vrai serveur en production (FOURNISSEUR_HEBERGEMENT, etc.) :
+
+1. **Préparer la configuration** :
+   ```bash
+   cp config/FOURNISSEUR_HEBERGEMENT-wordpress.yaml config/production.yaml
+   nano config/production.yaml  # Remplir les infos réelles
+   ```
+
+2. **Valider et tester** :
+   ```bash
+   backup-site config validate config/production.yaml
+   backup-site ssh test config/production.yaml
+   ```
+
+3. **Sauvegarder** :
+   ```bash
+   backup-site backup files config/production.yaml -o backups/prod_files.tar.gz
+   backup-site backup database config/production.yaml -o backups/prod_db.sql.gz
+   ```
+
+4. **Restaurer dans Docker** :
+   ```bash
+   cd docker/production-test
+   nano .env  # Adapter les versions PHP/MySQL/WordPress
+   docker compose up -d
+   cd ../..
+   backup-site restore files backups/prod_files.tar.gz config/production.yaml
+   backup-site restore database backups/prod_db.sql.gz config/production.yaml
+   ```
+
+5. **Vérifier** :
+   ```bash
+   curl http://localhost:8080
+   docker compose exec mysql mysql -u wordpress -pwordpress wordpress -e "SHOW TABLES;"
+   ```
+
+**Plan détaillé** : Voir [PRODUCTION_TEST_PLAN.md](PRODUCTION_TEST_PLAN.md)
 
 ---
 

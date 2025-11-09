@@ -3,7 +3,7 @@ version: '3.8'
 services:
   # Base de données MySQL/MariaDB
   mysql:
-    image: mysql:${MYSQL_VERSION:-8.0}
+    image: mariadb:${MYSQL_VERSION:-8.0}
     container_name: backup-test-mysql
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
@@ -17,9 +17,10 @@ services:
     networks:
       - backup-network
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      test: ["CMD", "mariadb", "-u", "wordpress", "-pwordpress", "-e", "SELECT 1"]
       timeout: 20s
       retries: 10
+      start_period: 30s
 
   # WordPress avec Apache
   wordpress:
@@ -35,8 +36,7 @@ services:
     volumes:
       - wordpress_data:/var/www/html
     depends_on:
-      mysql:
-        condition: service_healthy
+      - mysql
     networks:
       - backup-network
     healthcheck:

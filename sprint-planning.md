@@ -73,9 +73,20 @@ Livrer un MVP fonctionnel pour sauvegarder un site WordPress hébergé sur FOURN
 - **Test manuel** : ✅ Lancer `docker compose up` avec différentes versions, vérifier que WordPress est accessible
 
 ### US8 - Intégrer une sauvegarde dans Docker pour la tester (Must Have)
-- [ ] **T13** : Créer un script pour restaurer les fichiers d'une sauvegarde dans le Docker
-- [ ] **T14** : Créer un script pour restaurer la BDD d'une sauvegarde dans le Docker
-- **Test manuel** : Restaurer une sauvegarde, vérifier que WordPress fonctionne correctement
+- [x] **T13** : Créer un script pour restaurer les fichiers d'une sauvegarde dans le Docker ✅
+  - Classe `FileRestore` dans `src/backup_site/restore/files.py`
+  - Méthodes : `restore_from_file()` et `restore_from_stream()`
+  - Transfert SFTP + extraction SSH
+  - Tests unitaires : 7 cas de test
+- [x] **T14** : Créer un script pour restaurer la BDD d'une sauvegarde dans le Docker ✅
+  - Classe `DatabaseRestore` dans `src/backup_site/restore/database.py`
+  - Méthodes : `restore_from_file()` et `restore_from_stream()`
+  - Support fichiers compressés et non compressés
+  - Tests unitaires : 11 cas de test
+- [x] **Commandes CLI** : Restauration intégrée dans le CLI ✅
+  - `backup-site restore files archive.tar.gz config.yaml`
+  - `backup-site restore database dump.sql.gz config.yaml`
+- **Test manuel** : Restaurer une sauvegarde, vérifier que WordPress fonctionne correctement (voir WORKFLOW.md)
 
 ## Priorités
 1. US4 (Configuration) - Base essentielle

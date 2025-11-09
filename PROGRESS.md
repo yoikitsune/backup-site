@@ -105,20 +105,50 @@
   - Documentation : `docker/production-test/README.md` et `TESTING.md`
   - Ports : WordPress 8080, MySQL 3307, SSH 2222
 
-### US8 - Intégrer une sauvegarde dans Docker pour la tester (Must Have)
-- [ ] **T13** : Créer un script pour restaurer les fichiers d'une sauvegarde dans le Docker
-- [ ] **T14** : Créer un script pour restaurer la BDD d'une sauvegarde dans le Docker
+### US8 - Intégrer une sauvegarde dans Docker pour la tester (Must Have) ✅ IMPLÉMENTÉE
+
+#### T13 : Restauration des fichiers ✅
+- Classe `FileRestore` dans `src/backup_site/restore/files.py`
+- Méthodes : `restore_from_file()` et `restore_from_stream()`
+- Transfert SFTP + extraction SSH
+- Nettoyage automatique des fichiers temporaires
+
+#### T14 : Restauration de la BDD ✅
+- Classe `DatabaseRestore` dans `src/backup_site/restore/database.py`
+- Méthodes : `restore_from_file()` et `restore_from_stream()`
+- Support fichiers compressés (.sql.gz) et non compressés (.sql)
+- Commandes MySQL via SSH
+
+#### Tests ✅
+- ✅ 18 tests unitaires (7 pour FileRestore, 11 pour DatabaseRestore)
+- ✅ Tous les tests passent
+- ✅ Couverture : succès, erreurs, fichiers manquants, commandes échouées
+
+#### Commandes CLI ✅
+- `backup-site restore files archive.tar.gz config.yaml`
+- `backup-site restore database dump.sql.gz config.yaml`
+- Support des passphrases SSH
+- Messages d'erreur clairs et détaillés
+
+#### Documentation ✅
+- `docker/production-test/WORKFLOW.md` : Workflow complet Sauvegarde → Restauration
+- Cas de test complets avec vérifications
+- Dépannage et métriques
 
 ## Statistiques
 
 ### Code
-- **Fichiers Python** : 5 modules principaux
-- **Lignes de code** : ~800 LOC
-- **Tests** : Environnement Docker complet
+- **Fichiers Python** : 7 modules (backup + restore)
+- **Lignes de code** : ~1500 LOC
+- **Tests unitaires** : 31 tests (13 backup + 18 restore)
+- **Couverture** : Sauvegarde + Restauration complètes
 
 ### Documentation
 - **README.md** : Complet avec exemples
 - **config/README.md** : Guide des templates
+- **TESTING.md** : Guide de test complet
+- **IMPLEMENTATION_NOTES.md** : Décisions architecturales
+- **docker/production-test/WORKFLOW.md** : Workflow complet
 - **Commentaires** : Documentés et clairs
 
 ### Dépendances
@@ -130,20 +160,22 @@
 
 ## 🎯 Prochaines étapes
 
-### Immédiat (T5-T7)
-1. Créer le module de sauvegarde des fichiers
-2. Implémenter la connexion SFTP
-3. Générer les archives tar.gz
+### Sprint 1 - COMPLÉTÉE ✅
+- ✅ US4 : Configuration pour un site
+- ✅ US1 : Sauvegarde des fichiers
+- ✅ US2 : Sauvegarde de la BDD
+- ✅ US7 : Docker production-test
+- ✅ US8 : Restauration des sauvegardes
 
-### Court terme (T8-T10)
-1. Ajouter la sauvegarde MySQL
-2. Intégrer dans l'archive globale
-3. Tester la restauration
-
-### Moyen terme (T11-T12)
-1. Dockeriser l'application
-2. Configurer docker-compose
-3. Tester l'exécution complète
+### Sprint 2 (À planifier)
+1. **US3 - Restauration complète** : Script pour restaurer fichiers + BDD en une commande
+2. **US5 - Planification** : Sauvegardes automatiques (cron)
+3. **US6 - Stockage** : Support S3/cloud pour les sauvegardes
+4. **Améliorations** :
+   - Chiffrement des sauvegardes
+   - Vérification d'intégrité (checksums)
+   - Notifications (email, webhook)
+   - Dashboard de monitoring
 
 ## 🧪 Environnement de test
 

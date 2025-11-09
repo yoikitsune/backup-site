@@ -404,5 +404,160 @@ def test(config_file: str, passphrase: Optional[str]) -> None:
         print_error(f"Erreur lors du test SSH: {e}")
 
 
+@main.group()
+def restore() -> None:
+    """Gestion des restaurations de sauvegardes."""
+    pass
+
+
+@restore.command()
+@click.argument('archive_file', type=click.Path(exists=True, dir_okay=False, readable=True))
+@click.argument('config_file', type=click.Path(exists=True, dir_okay=False, readable=True))
+@click.option('--passphrase', prompt=False, hide_input=True, default=None,
+              help="Passphrase de la clé SSH (si elle en a une)")
+def files(archive_file: str, config_file: str, passphrase: Optional[str]) -> None:
+    """Restaure les fichiers depuis une archive tar.gz.
+    
+    ARCHIVE_FILE est le chemin vers l'archive tar.gz
+    CONFIG_FILE est le chemin vers le fichier de configuration
+    """
+    from backup_site.config import load_config
+    from backup_site.utils.ssh import SSHKeyValidator
+    from backup_site.restore.files import FileRestore
+    import paramiko
+    
+    try:
+        # Charge la configuration
+        console.print("[cyan]Chargement de la configuration...[/]")
+        config = load_config(Path(config_file))
+        ssh_config = config.ssh
+        files_config = config.files
+        
+        # Valide les clés SSH
+        console.print("[cyan]Validation des clés SSH...[/]")
+        SSHKeyValidator.validate_key_file(ssh_config.private_key_path, "private")
+        
+        # Établit la connexion SSH
+        console.print(f"[cyan]Connexion à {ssh_config.host}:{ssh_config.port}...[/]")
+        ssh_client = paramiko.SSHClient()
+        ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        
+        try:
+            key = SSHKeyValidator.load_private_key(ssh_config.private_key_path, passphrase)
+            ssh_client.connect(
+                hostname=ssh_config.host,
+                port=ssh_config.port,
+                username=ssh_config.user,
+                pkey=key,
+                timeout=30
+            )
+            print_success("Connexion SSH établie")
+        except Exception as e:
+            print_error(f"Impossible de se connecter: {e}")
+        
+        # Crée le gestionnaire de restauration
+        file_restore = FileRestore(
+            ssh_client=ssh_client,
+            remote_path=str(files_config.remote_path),
+        )
+        
+        # Lance la restauration
+        console.print(f"\n[cyan]Restauration des fichiers...[/]")
+        console.print(f"[dim]Archive: {archive_file}[/]")
+        console.print(f"[dim]Destination: {files_config.remote_path}[/]")
+        
+        success, message = file_restore.restore_from_file(Path(archive_file))
+        
+        if success:
+            console.print(f"\n{message}")
+            console.print(f"[green]Restauration réussie![/]")
+        
+    except Exception as e:
+        print_error(f"Erreur lors de la restauration: {e}")
+    finally:
+        # Ferme la connexion SSH
+        try:
+            ssh_client.close()
+        except:
+            pass
+
+
+@restore.command()
+@click.argument('dump_file', type=click.Path(exists=True, dir_okay=False, readable=True))
+@click.argument('config_file', type=click.Path(exists=True, dir_okay=False, readable=True))
+@click.option('--passphrase', prompt=False, hide_input=True, default=None,
+              help="Passphrase de la clé SSH (si elle en a une)")
+def database(dump_file: str, config_file: str, passphrase: Optional[str]) -> None:
+    """Restaure la base de données MySQL depuis un dump.
+    
+    DUMP_FILE est le chemin vers le fichier dump (SQL ou SQL.GZ)
+    CONFIG_FILE est le chemin vers le fichier de configuration
+    """
+    from backup_site.config import load_config
+    from backup_site.utils.ssh import SSHKeyValidator
+    from backup_site.restore.database import DatabaseRestore
+    import paramiko
+    
+    try:
+        # Charge la configuration
+        console.print("[cyan]Chargement de la configuration...[/]")
+        config = load_config(Path(config_file))
+        ssh_config = config.ssh
+        db_config = config.database
+        
+        # Valide les clés SSH
+        console.print("[cyan]Validation des clés SSH...[/]")
+        SSHKeyValidator.validate_key_file(ssh_config.private_key_path, "private")
+        
+        # Établit la connexion SSH
+        console.print(f"[cyan]Connexion à {ssh_config.host}:{ssh_config.port}...[/]")
+        ssh_client = paramiko.SSHClient()
+        ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        
+        try:
+            key = SSHKeyValidator.load_private_key(ssh_config.private_key_path, passphrase)
+            ssh_client.connect(
+                hostname=ssh_config.host,
+                port=ssh_config.port,
+                username=ssh_config.user,
+                pkey=key,
+                timeout=30
+            )
+            print_success("Connexion SSH établie")
+        except Exception as e:
+            print_error(f"Impossible de se connecter: {e}")
+        
+        # Crée le gestionnaire de restauration BDD
+        db_restore = DatabaseRestore(
+            ssh_client=ssh_client,
+            db_host=db_config.host,
+            db_port=db_config.port,
+            db_name=db_config.name,
+            db_user=db_config.user,
+            db_password=db_config.password.get_secret_value(),
+        )
+        
+        # Lance la restauration
+        console.print(f"\n[cyan]Restauration de la base de données...[/]")
+        console.print(f"[dim]Dump: {dump_file}[/]")
+        console.print(f"[dim]Hôte: {db_config.host}:{db_config.port}[/]")
+        console.print(f"[dim]Base: {db_config.name}[/]")
+        
+        success, message = db_restore.restore_from_file(Path(dump_file))
+        
+        if success:
+            console.print(f"\n{message}")
+            console.print(f"[green]Restauration réussie![/]")
+        
+    except Exception as e:
+        print_error(f"Erreur lors de la restauration BDD: {e}")
+    finally:
+        # Ferme la connexion SSH
+        try:
+            ssh_client.close()
+        except:
+            pass
+
+
 if __name__ == "__main__":
     main()
