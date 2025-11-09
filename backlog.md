@@ -14,8 +14,8 @@
 - [ ] **US6** : En tant que développeur, je veux pouvoir spécifier les dossiers à inclure/exclure de la sauvegarde
 
 ### Intégration Docker
-- [ ] **US7** : En tant que développeur, je veux pouvoir lancer la sauvegarde via une commande Docker simple
-- [ ] **US8** : En tant que développeur, je veux pouvoir spécifier la version de PHP/MySQL à utiliser
+- [ ] **US7** : En tant que développeur, je veux pouvoir configurer facilement un docker pour refleter au mieux le serveur de production (version php, version mysql ou mariadb)
+- [ ] **US8** : En tant que développeur, je veux pouvoir intégrer facilement dans le docker une sauvegarde pour la tester
 
 ### Gestion des sauvegardes
 - [ ] **US9** : En tant que développeur, je veux lister les sauvegardes disponibles

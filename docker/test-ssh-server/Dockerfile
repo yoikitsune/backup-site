@@ -24,9 +24,10 @@ RUN mkdir -p /home/testuser/www/wp-content/{themes,plugins,uploads} && \
     echo "RewriteEngine On" >> /home/testuser/www/.htaccess && \
     echo "# END WordPress" >> /home/testuser/www/.htaccess
 
-# Script de démarrage
+# Scripts de démarrage
 COPY entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
+COPY init-mysql.sh /init-mysql.sh
+RUN chmod +x /entrypoint.sh /init-mysql.sh
 
 EXPOSE 22
 

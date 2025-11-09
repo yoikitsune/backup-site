@@ -7,5 +7,33 @@ services:
       - ./ssh-keys:/home/testuser/.ssh:rw
     environment:
       - TERM=xterm
+      - MYSQL_HOST=test-mysql
     container_name: backup-site-test-ssh
     restart: unless-stopped
+    depends_on:
+      - test-mysql
+    networks:
+      - test-network
+
+  test-mysql:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpass
+      MYSQL_DATABASE: test_wp
+      MYSQL_USER: testuser
+      MYSQL_PASSWORD: testpass
+    command: --default-authentication-plugin=mysql_native_password --skip-ssl
+    ports:
+      - "3308:3306"
+    container_name: backup-site-test-mysql
+    restart: unless-stopped
+    networks:
+      - test-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+
+networks:
+  test-network:
+    driver: bridge

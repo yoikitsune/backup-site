@@ -21,10 +21,17 @@ Solution CLI de sauvegarde de site web avec support Docker, optimisée pour Word
 - [x] Tests unitaires et d'intégration
 - [x] Commande CLI : `backup-site backup files <config>`
 
+**Phase 3 - Sauvegarde de la base de données (US2)** ✅
+- [x] Sauvegarde MySQL/MariaDB via mysqldump
+- [x] Compression gzip optionnelle
+- [x] Support SSL optionnel
+- [x] Tests unitaires complets
+- [x] Commande CLI : `backup-site backup database <config>`
+
 ### 🚀 En développement
 
-- [ ] Sauvegarde de la base de données MySQL (US2)
-- [ ] Exécution via Docker (US7)
+- [ ] **US7** : Configurer Docker pour reproduire la production (versions PHP, MySQL)
+- [ ] **US8** : Intégrer une sauvegarde dans Docker pour la tester
 
 ## 🐛 Installation
 
@@ -153,6 +160,40 @@ backup-site -v <commande>                 # Mode verbose
 - Les fichiers de configuration contenant des identifiants ne sont pas suivis par Git
 - Utilisez toujours des chemins relatifs pour les clés SSH
 - Ne partagez jamais vos fichiers de configuration avec des informations sensibles
+
+## 🐳 Docker - Environnement de test production (US7 + US8)
+
+Pour tester vos sauvegardes et vérifier les mises à jour avant production, utilisez l'environnement Docker qui reproduit votre serveur de production.
+
+### Configuration
+
+```bash
+# Configurer les versions (PHP, MySQL)
+cd docker/production-test
+cp .env.example .env
+nano .env  # Éditer les versions
+```
+
+### Utilisation
+
+```bash
+# Démarrer l'environnement
+docker compose up -d
+
+# Vérifier que WordPress est accessible
+curl http://localhost
+
+# Restaurer une sauvegarde pour la tester
+docker compose exec wordpress tar -xzf /backups/backup.tar.gz -C /var/www/html
+docker compose exec mysql mysql -u wordpress -p wordpress < /backups/database.sql
+
+# Arrêter l'environnement
+docker compose down
+```
+
+Pour plus de détails, voir [DOCKER_TESTING.md](DOCKER_TESTING.md) (à venir).
+
+---
 
 ## 🧪 Tests
 

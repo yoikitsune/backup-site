@@ -10,4 +10,5 @@ echo "testuser:testpass" | chpasswd
 ssh-keygen -A
 
 # Démarrage du serveur SSH
+echo "Démarrage du serveur SSH..."
 exec /usr/sbin/sshd -D -e

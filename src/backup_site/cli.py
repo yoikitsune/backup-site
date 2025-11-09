@@ -247,6 +247,95 @@ def files(config_file: str, output: Optional[str], passphrase: Optional[str]) ->
             pass
 
 
+@backup.command()
+@click.argument('config_file', type=click.Path(exists=True, dir_okay=False, readable=True))
+@click.option('--output', '-o', type=click.Path(dir_okay=False, writable=True),
+              help="Chemin de sortie du dump (par défaut: backups/database-{timestamp}.sql.gz)")
+@click.option('--passphrase', prompt=False, hide_input=True, default=None,
+              help="Passphrase de la clé SSH (si elle en a une)")
+def database(config_file: str, output: Optional[str], passphrase: Optional[str]) -> None:
+    """Sauvegarde la base de données MySQL.
+    
+    CONFIG_FILE est le chemin vers le fichier de configuration
+    """
+    from datetime import datetime
+    from backup_site.config import load_config
+    from backup_site.utils.ssh import SSHKeyValidator
+    from backup_site.backup.database import DatabaseBackup
+    import paramiko
+    
+    try:
+        # Charge la configuration
+        console.print("[cyan]Chargement de la configuration...[/]")
+        config = load_config(Path(config_file))
+        ssh_config = config.ssh
+        db_config = config.database
+        backup_config = config.backup
+        
+        # Valide les clés SSH
+        console.print("[cyan]Validation des clés SSH...[/]")
+        SSHKeyValidator.validate_key_file(ssh_config.private_key_path, "private")
+        
+        # Établit la connexion SSH
+        console.print(f"[cyan]Connexion à {ssh_config.host}:{ssh_config.port}...[/]")
+        ssh_client = paramiko.SSHClient()
+        ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        
+        try:
+            key = SSHKeyValidator.load_private_key(ssh_config.private_key_path, passphrase)
+            ssh_client.connect(
+                hostname=ssh_config.host,
+                port=ssh_config.port,
+                username=ssh_config.user,
+                pkey=key,
+                timeout=30
+            )
+            print_success("Connexion SSH établie")
+        except Exception as e:
+            print_error(f"Impossible de se connecter: {e}")
+        
+        # Crée le gestionnaire de sauvegarde BDD
+        db_backup = DatabaseBackup(
+            ssh_client=ssh_client,
+            db_host=db_config.host,
+            db_port=db_config.port,
+            db_name=db_config.name,
+            db_user=db_config.user,
+            db_password=db_config.password.get_secret_value(),
+            compress=True,
+            ssl_enabled=False,
+        )
+        
+        # Détermine le chemin de sortie
+        if output:
+            output_path = Path(output)
+        else:
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            backup_dir = Path(backup_config.destination)
+            output_path = backup_dir / f"database_{timestamp}.sql.gz"
+        
+        # Lance la sauvegarde
+        console.print(f"\n[cyan]Sauvegarde de la base de données...[/]")
+        console.print(f"[dim]Hôte: {db_config.host}:{db_config.port}[/]")
+        console.print(f"[dim]Base: {db_config.name}[/]")
+        console.print(f"[dim]Utilisateur: {db_config.user}[/]")
+        
+        success, message, bytes_written = db_backup.backup_to_file(output_path)
+        
+        if success:
+            console.print(f"\n{message}")
+            console.print(f"[green]Dump créé: {output_path}[/]")
+        
+    except Exception as e:
+        print_error(f"Erreur lors de la sauvegarde BDD: {e}")
+    finally:
+        # Ferme la connexion SSH
+        try:
+            ssh_client.close()
+        except:
+            pass
+
+
 @main.group()
 def ssh() -> None:
     """Gestion des clés SSH et connexions."""

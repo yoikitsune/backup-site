@@ -38,15 +38,33 @@ Livrer un MVP fonctionnel pour sauvegarder un site WordPress hébergé sur FOURN
   - ✅ Commande CLI validée : `backup-site backup files config/test-docker.yaml`
 
 ### US2 - Sauvegarder une base de données MySQL (Must Have)
-- [ ] **T8** : Implémenter la connexion à la BDD via SSH tunnel (localhost)
-- [ ] **T9** : Utiliser mysqldump pour exporter la base de données
-- [ ] **T10** : Intégrer la sauvegarde BDD dans l'archive globale
-- **Test manuel** : Lancer une sauvegarde de la BDD, vérifier que le fichier SQL est présent dans l'archive et lisible
+- [x] **T8** : Implémenter la connexion à la BDD via SSH tunnel (localhost) ✅
+  - Classe `DatabaseBackup` dans `src/backup_site/backup/database.py`
+  - Connexion via SSH tunnel (host: test-mysql)
+- [x] **T9** : Utiliser mysqldump pour exporter la base de données ✅
+  - Commande mysqldump avec options : --routines, --triggers, --events
+  - Compression gzip optionnelle
+- [x] **T10** : Intégrer la sauvegarde BDD dans l'archive globale ✅
+  - Commande CLI : `backup-site backup database config/test-docker.yaml`
+- **Test manuel** : Lancer une sauvegarde de la BDD, vérifier que le fichier SQL est présent dans l'archive et lisible ✅
+  - ✅ Dump créé avec succès (924 bytes compressé)
+  - ✅ Fichier SQL valide et lisible
+  - ✅ Table wp_posts avec données incluses
+  - ✅ Tests unitaires: `tests/test_database.py` (6 cas de test)
 
-### US7 - Lancer via Docker (Must Have)
-- [ ] **T11** : Créer un Dockerfile de base pour l'exécution des sauvegardes
-- [ ] **T12** : Configurer un docker-compose.yml pour un lancement simple
-- **Test manuel** : Lancer la sauvegarde via Docker, vérifier que la configuration est lue et que l'archive est créée
+### US7 - Configurer Docker pour reproduire la production (Must Have)
+- [ ] **T11** : Créer un docker-compose.yml configurable avec WordPress, PHP, MySQL/MariaDB
+  - Variables d'environnement pour les versions (PHP_VERSION, MYSQL_VERSION)
+  - Service SSH pour accéder aux fichiers
+  - Service MySQL pour la base de données
+  - Service WordPress avec Apache
+- [ ] **T12** : Documenter comment configurer les versions et lancer l'environnement
+- **Test manuel** : Lancer `docker compose up` avec différentes versions, vérifier que WordPress est accessible
+
+### US8 - Intégrer une sauvegarde dans Docker pour la tester (Must Have)
+- [ ] **T13** : Créer un script pour restaurer les fichiers d'une sauvegarde dans le Docker
+- [ ] **T14** : Créer un script pour restaurer la BDD d'une sauvegarde dans le Docker
+- **Test manuel** : Restaurer une sauvegarde, vérifier que WordPress fonctionne correctement
 
 ## Priorités
 1. US4 (Configuration) - Base essentielle

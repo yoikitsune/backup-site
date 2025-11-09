@@ -66,16 +66,36 @@
   - Fichiers inclus: wp-config.php, .htaccess
   - Patterns d'inclusion/exclusion respectés
 
-### US2 - Sauvegarder une base de données MySQL (Must Have)
-- [ ] **T8** : Implémenter la connexion à la BDD via SSH tunnel
-- [ ] **T9** : Utiliser mysqldump pour exporter la base de données
-- [ ] **T10** : Intégrer la sauvegarde BDD dans l'archive globale
+### US2 - Sauvegarder une base de données MySQL (Must Have) ✅ IMPLÉMENTÉE
 
-### US7 - Lancer via Docker (Must Have)
-- [ ] **T11** : Créer un Dockerfile pour l'exécution des sauvegardes
-- [ ] **T12** : Configurer un docker-compose.yml pour lancement simple
+#### T8 : Implémenter la connexion SSH tunnel ✅
+- Classe `DatabaseBackup` dans `src/backup_site/backup/database.py`
+- Connexion via SSH tunnel (host: test-mysql, port: 3306)
+- Support SSL optionnel
 
-## 📊 Statistiques
+#### T9 : Utiliser mysqldump ✅
+- Commande mysqldump avec options : --routines, --triggers, --events
+- Compression gzip optionnelle
+- Gestion d'erreurs robuste
+
+#### T10 : Intégrer dans l'archive ✅
+- Commande CLI : `backup-site backup database config/test-docker.yaml`
+- Fichier de sortie : `database_{timestamp}.sql.gz`
+
+#### Tests ✅
+  - Dump: 924 bytes (compressé)
+  - Fichier SQL valide et lisible
+  - Table wp_posts avec données incluses
+
+### US7 - Configurer Docker pour reproduire la production (Must Have)
+- [ ] **T11** : Créer un docker-compose.yml configurable avec WordPress, PHP, MySQL/MariaDB
+- [ ] **T12** : Documenter comment configurer les versions et lancer l'environnement
+
+### US8 - Intégrer une sauvegarde dans Docker pour la tester (Must Have)
+- [ ] **T13** : Créer un script pour restaurer les fichiers d'une sauvegarde dans le Docker
+- [ ] **T14** : Créer un script pour restaurer la BDD d'une sauvegarde dans le Docker
+
+## Statistiques
 
 ### Code
 - **Fichiers Python** : 5 modules principaux

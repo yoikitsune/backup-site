@@ -14,8 +14,11 @@
 - **mysqldump** : Utilisation de l'outil natif pour la fiabilité
 
 ### Docker
-- **Dockerfile** : Image optimisée pour l'exécution des sauvegardes
-- **docker-compose.yml** : Configuration facile pour différents environnements
+- **docker-compose.yml** : Environnement de test reproduisant la production
+  - Services : WordPress, MySQL/MariaDB, SSH
+  - Versions configurables (PHP, MySQL)
+  - Permet de tester les sauvegardes et les restaurations
+  - Permet de valider les mises à jour avant production
 
 ### Stockage
 - **Format d'archive** : Tar.gz pour la compression
@@ -43,8 +46,14 @@ backup-site/
 │           ├── logger.py       # Logging
 │           └── helpers.py      # Fonctions utilitaires
 ├── docker/
-│   ├── Dockerfile
-│   └── docker-compose.yml
+│   ├── test-ssh-server/        # Serveur SSH de test (pour tester les sauvegardes)
+│   │   ├── Dockerfile
+│   │   ├── compose.yml
+│   │   └── entrypoint.sh
+│   └── production-test/        # Environnement de test production (pour tester les restaurations)
+│       ├── docker-compose.yml
+│       ├── .env.example
+│       └── restore-scripts/
 ├── config/
 │   ├── FOURNISSEUR_HEBERGEMENT.yaml          # Configuration FOURNISSEUR_HEBERGEMENT
 │   └── wordpress.yaml         # Configuration WordPress
@@ -70,10 +79,15 @@ backup-site/
 - **Settings** : Configuration par défaut et validation
 - **SecretManager** : Gestion sécurisée des mots de passe et clés SSH
 
-### 4. Docker Integration
-- **BackupContainer** : Conteneur optimisé pour les sauvegardes
-- **VolumeMount** : Gestion des volumes pour les fichiers
-- **NetworkAccess** : Accès réseau aux bases de données
+### 4. Docker Integration (US7 + US8)
+- **ProductionTestEnv** : Environnement Docker reproduisant la production
+  - Services : WordPress, MySQL/MariaDB, SSH
+  - Versions configurables (PHP_VERSION, MYSQL_VERSION)
+  - Permet de tester les sauvegardes et restaurations
+- **RestoreScripts** : Scripts pour restaurer les sauvegardes dans Docker
+  - Restauration des fichiers
+  - Restauration de la base de données
+  - Vérification de l'intégrité
 
 ## Format des configurations
 

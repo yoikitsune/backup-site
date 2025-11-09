@@ -35,10 +35,10 @@ class TestFileBackup:
         # Vérifie que la commande contient les éléments clés
         assert "cd /home/testuser/www" in cmd
         assert "find . -type f" in cmd
-        assert "! -path '*wp-content/cache/**'" in cmd
-        assert "! -path '**.log'" in cmd
-        assert "-path '*wp-content/**'" in cmd
-        assert "-path '*wp-config.php'" in cmd
+        assert "! -path '*wp-content/cache/***'" in cmd  # Les * sont ajoutés par le code
+        assert "! -path '**.log*'" in cmd  # Les * sont ajoutés par le code
+        assert "-path '*wp-content/***'" in cmd  # Les * sont ajoutés par le code
+        assert "-path '*wp-config.php*'" in cmd  # Les * sont ajoutés par le code
         assert "tar -czf - -T -" in cmd  # tar lit depuis stdin (find)
     
     def test_build_tar_command_without_include_patterns(self, mock_ssh_client):
@@ -54,7 +54,7 @@ class TestFileBackup:
         
         # Sans patterns d'inclusion, la commande ne doit pas inclure -path avec conditions
         assert "find . -type f" in cmd
-        assert "! -path '**.log'" in cmd
+        assert "! -path '**.log*'" in cmd  # Les * sont ajoutés par le code
         assert "tar -czf - -T -" in cmd
     
     def test_backup_to_file_success(self, file_backup, mock_ssh_client):

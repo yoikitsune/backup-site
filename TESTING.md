@@ -1,5 +1,43 @@
 # Guide de test - Backup Site
 
+## ✅ Prérequis
+
+Avant de lancer les tests, assure-toi que tu as :
+
+- **Python 3.11+** : `python --version`
+- **Poetry** : `pip install poetry` (si pas encore installé)
+- **Docker** : Pour les tests d'intégration (optionnel pour les tests unitaires)
+
+### Installation initiale (une seule fois)
+```bash
+# Installer les dépendances du projet
+poetry install
+```
+
+Cela installe :
+- Les dépendances principales (click, pydantic, paramiko, etc.)
+- Les dépendances de développement (pytest, black, flake8, mypy)
+
+---
+
+## 🚀 Résumé rapide
+
+**Pour lancer les tests unitaires** (pas besoin de Docker) :
+```bash
+poetry install          # Une seule fois
+poetry run pytest tests/test_database.py -v
+```
+
+**Pour lancer les tests d'intégration** (avec Docker) :
+```bash
+poetry install          # Une seule fois
+cd docker/test-ssh-server && docker compose -f compose.yml up -d && cd ../../
+poetry run pytest tests/ -v
+docker compose -f docker/test-ssh-server/compose.yml down
+```
+
+---
+
 ## 🧪 Tests unitaires
 
 ### Exécuter tous les tests
@@ -15,6 +53,16 @@ poetry run pytest tests/test_files.py -v
 ### Exécuter avec couverture
 ```bash
 poetry run pytest tests/ --cov=src/backup_site --cov-report=html
+```
+
+### Alternative : Sans Poetry
+Si Poetry n'est pas disponible, tu peux installer les dépendances manuellement :
+```bash
+# Installer les dépendances de test
+pip install pytest paramiko pydantic click pyyaml cryptography rich pydantic-settings python-dotenv
+
+# Lancer les tests
+python -m pytest tests/ -v
 ```
 
 ## 🐳 Tests d'intégration avec Docker
