@@ -171,10 +171,10 @@
 ## Statistiques
 
 ### Code
-- **Fichiers Python** : 7 modules (backup + restore)
-- **Lignes de code** : ~1500 LOC
-- **Tests unitaires** : 31 tests (13 backup + 18 restore)
-- **Couverture** : Sauvegarde + Restauration complètes
+- **Fichiers Python** : 6 modules (backup + docker_load)
+- **Lignes de code** : ~1200 LOC
+- **Tests unitaires** : 13 tests (sauvegarde + chargement Docker)
+- **Couverture** : Sauvegarde + Chargement Docker complètes
 
 ### Documentation
 - **README.md** : Complet avec exemples

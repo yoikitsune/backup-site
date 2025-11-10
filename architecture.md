@@ -70,16 +70,17 @@ backup-site/
 
 ### 1. CLI Layer (`cli.py`)
 - Commande principale : `backup-site`
-- Sous-commandes : `backup`, `restore`, `list`, `config`
+- Sous-commandes : `backup`, `load`, `config`, `ssh`
 
 ### 2. Backup Engine
 - **FileBackup** : Sauvegarde des fichiers avec exclusion/inclusion (SSH)
 - **DatabaseBackup** : Sauvegarde MySQL/MariaDB via mysqldump (SSH tunnel)
 
-### 2b. Docker Load Engine
+### 2b. Docker Load Engine (MVP - Docker local uniquement)
 - **DockerFileLoad** : Chargement des fichiers dans Docker via `docker cp` + `docker exec`
 - **DockerDatabaseLoad** : Chargement de la BDD dans Docker via `docker exec`
 - **DockerWordPressAdapter** : Adaptation automatique des URLs WordPress via wp-cli
+- ⚠️ **Note** : La restauration en production (via SSH) est planifiée pour Sprint 2
 
 ### 3. Configuration System
 - **SiteConfig** : Configuration complète du site (hébergeur, CMS, SSH, BDD)
@@ -161,11 +162,14 @@ backup:
 5. Création de l'archive finale
 6. Stockage local avec métadonnées
 
-### Restore
-1. Lecture des métadonnées de l'archive
-2. Extraction des fichiers
-3. Restauration de la base de données
-4. Vérification de l'intégrité
+### Load (Docker local - MVP)
+1. Chargement des fichiers via `docker cp` + extraction
+2. Chargement de la BDD via `docker exec` + mysql
+3. Adaptation des URLs WordPress via wp-cli
+4. Vérification de la configuration
+
+### Restore (Production - Sprint 2)
+À planifier pour Sprint 2 avec avertissements de sécurité
 
 ## Points techniques à considérer
 
