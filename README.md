@@ -1,320 +1,58 @@
-# Backup Site
+# 🚀 Backup Site
 
-Solution CLI de sauvegarde de site web avec support Docker, optimisée pour WordPress sur FOURNISSEUR_HEBERGEMENT.
+Sauvegarde ton site WordPress depuis FOURNISSEUR_HEBERGEMENT et teste-le localement dans Docker.
 
-## 📊 État du projet
-
-### ✅ Fonctionnalités complètes et testées
-
-**Phase 1 - Configuration (US4)** ✅
-- [x] Configuration YAML avec validation Pydantic
-- [x] Gestion sécurisée des clés SSH
-- [x] Test de connexion SSH
-- [x] Template optimisé pour WordPress sur FOURNISSEUR_HEBERGEMENT
-- [x] Support des patterns inclusion/exclusion
-- [x] Environnement de test Docker
-
-**Phase 2 - Sauvegarde des fichiers (US1)** ✅
-- [x] Sauvegarde des fichiers via SSH avec compression côté serveur
-- [x] Patterns d'inclusion/exclusion (compatible GNU tar et BusyBox tar)
-- [x] Archive tar.gz compressée
-- [x] Tests unitaires et d'intégration
-- [x] Commande CLI : `backup-site backup files <config>`
-
-**Phase 3 - Sauvegarde de la base de données (US2)** ✅
-- [x] Sauvegarde MySQL/MariaDB via mysqldump
-- [x] Compression gzip optionnelle
-- [x] Support SSL optionnel
-- [x] Tests unitaires complets
-- [x] Commande CLI : `backup-site backup database <config>`
-
-**Phase 4 - Restauration des fichiers (US8)** ✅
-- [x] Chargement des fichiers depuis archive tar.gz (Docker local)
-- [x] Transfert via docker cp + extraction via docker exec
-- [x] Tests unitaires complets
-- [x] Commande CLI : `backup-site load files <archive> --container <name>`
-
-**Phase 5 - Chargement de la BDD (US8)** ✅
-- [x] Chargement MySQL depuis dump SQL (Docker local)
-- [x] Support fichiers compressés et non-compressés
-- [x] Tests unitaires complets
-- [x] Commande CLI : `backup-site load database <dump>` (infos BDD extraites via wp-cli)
-
-**Phase 6 - Adaptation des URLs WordPress (US8)** ✅
-- [x] Adaptation automatique des URLs via wp-cli
-- [x] Search-replace sur tout le contenu
-- [x] Vérification de l'adaptation
-- [x] Commande CLI : `backup-site load adapt-urls --old-url <url> --new-url <url>`
-
-**Phase 7 - Docker production-test (US7)** ✅
-- [x] docker-compose.yml avec WordPress, MySQL, SSH
-- [x] Configuration par variables d'environnement
-- [x] Support des versions PHP, MySQL, WordPress
-- [x] Documentation complète
-
-## 🐛 Installation
+## ⚡ Démarrage rapide
 
 ```bash
-# Cloner le dépôt
-git clone https://github.com/votre-utilisateur/backup-site.git
-cd backup-site
+# 1. Installer
+pip install backup-site
 
-# Installer les dépendances avec Poetry
-poetry install
+# 2. Configurer
+cp config/FOURNISSEUR_HEBERGEMENT-wordpress.yaml config/mon-site.yaml
+nano config/mon-site.yaml
 
-# Activer l'environnement virtuel
-poetry shell
+# 3. Sauvegarder
+backup-site backup files config/mon-site.yaml
+backup-site backup database config/mon-site.yaml
+
+# 4. Charger dans Docker
+backup-site load files archive.tar.gz
+backup-site load database dump.sql.gz
 ```
 
-## ⚙️ Configuration requise
+## 📚 Documentation
 
-- Python 3.11+
-- Docker (pour l'exécution conteneurisée)
-- Clés SSH configurées pour FOURNISSEUR_HEBERGEMENT
+- **Premiers pas** : [QUICKSTART.md](QUICKSTART.md) - 10 min pour ta première sauvegarde
+- **Guide complet** : [docs/START_HERE.md](docs/START_HERE.md) - Navigation par rôle
+- **Index complet** : [docs/DOCS_INDEX.md](docs/DOCS_INDEX.md) - Tous les documents
 
-## 🔧 Structure du projet
+## 🎯 Cas d'usage
 
-```
-backup-site/
-├── src/backup_site/          # Code source principal
-│   ├── cli.py               # Commandes CLI
-│   ├── backup/              # Logique de sauvegarde
-│   ├── config/              # Gestion des configurations
-│   └── utils/               # Utilitaires
-├── docker/                  # Configuration Docker
-├── config/                  # Templates de configuration
-│   └── example-site.yaml    # Exemple de configuration
-├── tests/                   # Tests automatisés
-├── .gitignore              # Fichiers ignorés par Git
-└── pyproject.toml           # Configuration Python/poetry
-```
+Tu développes un site WordPress sur FOURNISSEUR_HEBERGEMENT.  
+Tu veux tester une modification avant de la mettre en production.
 
-## 💻 Utilisation
+Backup-site te permet de :
+1. **Sauvegarder** le site depuis FOURNISSEUR_HEBERGEMENT
+2. **Charger** la sauvegarde dans Docker local
+3. **Tester** la modification
+4. **Déployer** en production si OK
 
-### Configuration initiale
+## 🔗 Liens utiles
 
-1. **Utiliser un template pré-configuré** (recommandé pour WordPress sur FOURNISSEUR_HEBERGEMENT) :
-   ```bash
-   cp config/FOURNISSEUR_HEBERGEMENT-wordpress.yaml config/mon-site.yaml
-   ```
+- [Installation complète](docs/START_HERE.md)
+- [Commandes disponibles](docs/workflows/COMMANDES_COMPLETES_A_Z.md)
+- [Architecture technique](docs/architecture/architecture.md)
+- [Tests et validation](docs/development/TESTING.md)
 
-2. **OU créer une configuration de base** :
-   ```bash
-   backup-site config init config/mon-site.yaml
-   ```
+## ✨ Fonctionnalités
 
-3. **Éditer le fichier avec vos informations** :
-   ```bash
-   nano config/mon-site.yaml
-   ```
-
-4. **Valider et tester** :
-   ```bash
-   backup-site config validate config/mon-site.yaml
-   backup-site ssh test config/mon-site.yaml
-   ```
-
-## 🛠️ Configuration
-
-### Fichiers de configuration disponibles
-
-- **`config/example-site.yaml`** : Configuration générique de base
-- **`config/FOURNISSEUR_HEBERGEMENT-wordpress.yaml`** : Template optimisé pour WordPress sur FOURNISSEUR_HEBERGEMENT (recommandé)
-
-### Créer votre configuration
-
-1. Copiez un template :
-   ```bash
-   cp config/FOURNISSEUR_HEBERGEMENT-wordpress.yaml config/mon-site.yaml
-   ```
-
-2. Éditez avec vos paramètres :
-   ```bash
-   nano config/mon-site.yaml
-   ```
-
-3. Validez la configuration :
-   ```bash
-   backup-site config validate config/mon-site.yaml
-   ```
-
-4. Testez la connexion SSH :
-   ```bash
-   backup-site ssh test config/mon-site.yaml
-   ```
-
-### Structure d'une configuration
-
-Voir `config/README.md` pour les détails sur les templates et les sections disponibles.
-
-## 📋 Commandes disponibles
-
-### Configuration
-```bash
-backup-site config init <output>          # Créer une config de base
-backup-site config validate <config>      # Valider une configuration
-```
-
-### SSH
-```bash
-backup-site ssh setup-guide               # Afficher le guide de configuration SSH
-backup-site ssh test <config>             # Tester la connexion SSH
-```
-
-### Sauvegarde (depuis production)
-```bash
-backup-site backup files <config>         # Sauvegarder les fichiers
-backup-site backup files <config> -o <path>  # Sauvegarder avec chemin personnalisé
-backup-site backup database <config>      # Sauvegarder la BDD
-backup-site backup database <config> -o <path>  # Sauvegarder la BDD avec chemin personnalisé
-```
-
-### Chargement (dans Docker local)
-```bash
-backup-site load files <archive>          # Charger les fichiers dans Docker
-backup-site load database <dump>          # Charger la BDD dans Docker
-backup-site load setup --old-url <url> --new-url <url>  # Adapter WordPress (URLs + BDD)
-```
-
-### Utilitaires
-```bash
-backup-site --version                     # Afficher la version
-backup-site --help                        # Afficher l'aide
-backup-site -v <commande>                 # Mode verbose
-```
-
-## 🛠️ Sécurité
-
-- Les fichiers de configuration contenant des identifiants ne sont pas suivis par Git
-- Utilisez toujours des chemins relatifs pour les clés SSH
-- Ne partagez jamais vos fichiers de configuration avec des informations sensibles
-
-## 🐳 Docker - Environnement de test production (US7 + US8)
-
-Pour tester vos sauvegardes et vérifier les mises à jour avant production, utilisez l'environnement Docker qui reproduit votre serveur de production.
-
-### Configuration
-
-```bash
-# Configurer les versions (PHP, MySQL)
-cd docker/production-test
-cp .env.example .env
-nano .env  # Éditer les versions
-```
-
-### Utilisation
-
-```bash
-# Démarrer l'environnement
-docker compose up -d
-
-# Vérifier que WordPress est accessible
-curl http://localhost
-
-# Restaurer une sauvegarde pour la tester
-docker compose exec wordpress tar -xzf /backups/backup.tar.gz -C /var/www/html
-docker compose exec mysql mysql -u wordpress -p wordpress < /backups/database.sql
-
-# Arrêter l'environnement
-docker compose down
-```
-
-Pour plus de détails, voir [docker/production-test/WORKFLOW.md](docker/production-test/WORKFLOW.md).
-
-## 🚀 Test en production réelle
-
-Pour tester backup-site avec un vrai serveur en production (FOURNISSEUR_HEBERGEMENT, etc.) :
-
-1. **Préparer la configuration** :
-   ```bash
-   cp config/FOURNISSEUR_HEBERGEMENT-wordpress.yaml config/production.yaml
-   nano config/production.yaml  # Remplir les infos réelles
-   ```
-
-2. **Valider et tester** :
-   ```bash
-   backup-site config validate config/production.yaml
-   backup-site ssh test config/production.yaml
-   ```
-
-3. **Sauvegarder** :
-   ```bash
-   backup-site backup files config/production.yaml -o backups/prod_files.tar.gz
-   backup-site backup database config/production.yaml -o backups/prod_db.sql.gz
-   ```
-
-4. **Charger dans Docker** :
-   ```bash
-   cd docker/production-test
-   nano .env  # Adapter les versions PHP/MySQL/WordPress
-   docker compose up -d
-   cd ../..
-   
-   # Charger les sauvegardes
-   backup-site load files backups/prod_files.tar.gz
-   backup-site load database backups/prod_db.sql.gz
-   
-   # Adapter la configuration WordPress
-   backup-site load setup --old-url "https://www.feelgoodbymelanie.com" --new-url "http://localhost:8080"
-   ```
-
-5. **Vérifier** :
-   ```bash
-   curl http://localhost:8080
-   docker compose exec mysql mysql -u wordpress -pwordpress wordpress -e "SHOW TABLES;"
-   ```
-
-**Plan détaillé** : Voir [PRODUCTION_TEST_PLAN.md](docs/workflows/PRODUCTION_TEST_PLAN.md)
-
----
-
-## 🧪 Tests
-
-Pour plus de détails sur les tests, voir [TESTING.md](docs/development/TESTING.md).
-
-### Tests unitaires
-```bash
-poetry run pytest tests/ -v
-```
-
-### Tests d'intégration avec Docker
-```bash
-# Démarrer le serveur SSH de test
-cd docker/test-ssh-server && docker compose -f compose.yml up -d && sleep 5 && cd ../../
-
-# Lancer la sauvegarde
-backup-site backup files config/test-docker.yaml -o backups/test_backup.tar.gz
-
-# Vérifier l'archive
-tar -tzf backups/test_backup.tar.gz
-
-# Arrêter le serveur
-cd docker/test-ssh-server && docker compose -f compose.yml down && cd ../../
-```
-
-## 📁 Développement
-
-### Installation des outils de développement
-
-```bash
-poetry install --with dev
-```
-
-### Vérification du code
-
-```bash
-# Formater le code
-poetry run black src/
-
-# Vérifier le style
-poetry run flake8 src/
-
-# Vérifier les types
-poetry run mypy src/
-
-# Exécuter les tests
-poetry run pytest
-```
+- ✅ Sauvegarde des fichiers via SSH
+- ✅ Sauvegarde de la base de données MySQL/MariaDB
+- ✅ Chargement dans Docker local
+- ✅ Adaptation automatique des URLs WordPress
+- ✅ Configuration YAML simple
+- ✅ Tests unitaires complets
 
 ## 📝 Licence
 
