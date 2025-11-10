@@ -405,158 +405,153 @@ def test(config_file: str, passphrase: Optional[str]) -> None:
 
 
 @main.group()
-def restore() -> None:
-    """Gestion des restaurations de sauvegardes."""
+def load() -> None:
+    """Chargement des sauvegardes dans Docker local."""
     pass
 
 
-@restore.command()
+@load.command()
 @click.argument('archive_file', type=click.Path(exists=True, dir_okay=False, readable=True))
-@click.argument('config_file', type=click.Path(exists=True, dir_okay=False, readable=True))
-@click.option('--passphrase', prompt=False, hide_input=True, default=None,
-              help="Passphrase de la clé SSH (si elle en a une)")
-def files(archive_file: str, config_file: str, passphrase: Optional[str]) -> None:
-    """Restaure les fichiers depuis une archive tar.gz.
+@click.option('--container', '-c', default='backup-test-wordpress',
+              help="Nom du container Docker (défaut: backup-test-wordpress)")
+@click.option('--path', '-p', default='/var/www/html',
+              help="Chemin dans le container (défaut: /var/www/html)")
+def files(archive_file: str, container: str, path: str) -> None:
+    """Charge les fichiers depuis une archive tar.gz dans Docker local.
     
     ARCHIVE_FILE est le chemin vers l'archive tar.gz
-    CONFIG_FILE est le chemin vers le fichier de configuration
     """
-    from backup_site.config import load_config
-    from backup_site.utils.ssh import SSHKeyValidator
-    from backup_site.restore.files import FileRestore
-    import paramiko
+    from backup_site.docker_load.files import DockerFileLoad
     
     try:
-        # Charge la configuration
-        console.print("[cyan]Chargement de la configuration...[/]")
-        config = load_config(Path(config_file))
-        ssh_config = config.ssh
-        files_config = config.files
+        console.print("[cyan]Chargement des fichiers dans Docker...[/]")
+        console.print(f"[dim]Container: {container}[/]")
+        console.print(f"[dim]Archive: {archive_file}[/]")
+        console.print(f"[dim]Destination: {path}[/]")
         
-        # Valide les clés SSH
-        console.print("[cyan]Validation des clés SSH...[/]")
-        SSHKeyValidator.validate_key_file(ssh_config.private_key_path, "private")
-        
-        # Établit la connexion SSH
-        console.print(f"[cyan]Connexion à {ssh_config.host}:{ssh_config.port}...[/]")
-        ssh_client = paramiko.SSHClient()
-        ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-        
-        try:
-            key = SSHKeyValidator.load_private_key(ssh_config.private_key_path, passphrase)
-            ssh_client.connect(
-                hostname=ssh_config.host,
-                port=ssh_config.port,
-                username=ssh_config.user,
-                pkey=key,
-                timeout=30
-            )
-            print_success("Connexion SSH établie")
-        except Exception as e:
-            print_error(f"Impossible de se connecter: {e}")
-        
-        # Crée le gestionnaire de restauration
-        file_restore = FileRestore(
-            ssh_client=ssh_client,
-            remote_path=str(files_config.remote_path),
+        # Crée le gestionnaire de chargement Docker
+        file_load = DockerFileLoad(
+            container_name=container,
+            remote_path=path,
         )
         
-        # Lance la restauration
-        console.print(f"\n[cyan]Restauration des fichiers...[/]")
-        console.print(f"[dim]Archive: {archive_file}[/]")
-        console.print(f"[dim]Destination: {files_config.remote_path}[/]")
-        
-        success, message = file_restore.restore_from_file(Path(archive_file))
+        # Lance le chargement
+        success, message = file_load.load_from_file(Path(archive_file))
         
         if success:
             console.print(f"\n{message}")
-            console.print(f"[green]Restauration réussie![/]")
+            console.print(f"[green]Chargement réussi![/]")
         
     except Exception as e:
-        print_error(f"Erreur lors de la restauration: {e}")
-    finally:
-        # Ferme la connexion SSH
-        try:
-            ssh_client.close()
-        except:
-            pass
+        print_error(f"Erreur lors du chargement: {e}")
 
 
-@restore.command()
+@load.command()
 @click.argument('dump_file', type=click.Path(exists=True, dir_okay=False, readable=True))
-@click.argument('config_file', type=click.Path(exists=True, dir_okay=False, readable=True))
-@click.option('--passphrase', prompt=False, hide_input=True, default=None,
-              help="Passphrase de la clé SSH (si elle en a une)")
-def database(dump_file: str, config_file: str, passphrase: Optional[str]) -> None:
-    """Restaure la base de données MySQL depuis un dump.
+@click.option('--container', '-c', default='backup-test-mysql',
+              help="Nom du container MySQL/MariaDB Docker (défaut: backup-test-mysql)")
+@click.option('--wordpress-container', '-w', default='backup-test-wordpress',
+              help="Nom du container WordPress (pour extraire les infos via wp-cli, défaut: backup-test-wordpress)")
+@click.option('--db-name', '-d', default=None,
+              help="Nom de la base de données (optionnel si wordpress-container fourni)")
+@click.option('--db-user', '-u', default=None,
+              help="Utilisateur de la base de données (optionnel si wordpress-container fourni)")
+@click.option('--db-password', '-p', default=None,
+              help="Mot de passe de la base de données (optionnel si wordpress-container fourni)")
+def database(dump_file: str, container: str, wordpress_container: str, db_name: Optional[str], db_user: Optional[str], db_password: Optional[str]) -> None:
+    """Charge la base de données MySQL depuis un dump dans Docker local.
     
     DUMP_FILE est le chemin vers le fichier dump (SQL ou SQL.GZ)
-    CONFIG_FILE est le chemin vers le fichier de configuration
+    
+    Les infos de la BDD sont extraites automatiquement depuis wp-config.php via wp-cli.
+    Vous pouvez les spécifier manuellement avec --db-name, --db-user, --db-password.
     """
-    from backup_site.config import load_config
-    from backup_site.utils.ssh import SSHKeyValidator
-    from backup_site.restore.database import DatabaseRestore
-    import paramiko
+    from backup_site.docker_load.database import DockerDatabaseLoad
     
     try:
-        # Charge la configuration
-        console.print("[cyan]Chargement de la configuration...[/]")
-        config = load_config(Path(config_file))
-        ssh_config = config.ssh
-        db_config = config.database
+        console.print("[cyan]Chargement de la base de données dans Docker...[/]")
+        console.print(f"[dim]Container MySQL: {container}[/]")
+        console.print(f"[dim]Container WordPress: {wordpress_container}[/]")
+        console.print(f"[dim]Dump: {dump_file}[/]")
         
-        # Valide les clés SSH
-        console.print("[cyan]Validation des clés SSH...[/]")
-        SSHKeyValidator.validate_key_file(ssh_config.private_key_path, "private")
-        
-        # Établit la connexion SSH
-        console.print(f"[cyan]Connexion à {ssh_config.host}:{ssh_config.port}...[/]")
-        ssh_client = paramiko.SSHClient()
-        ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-        
-        try:
-            key = SSHKeyValidator.load_private_key(ssh_config.private_key_path, passphrase)
-            ssh_client.connect(
-                hostname=ssh_config.host,
-                port=ssh_config.port,
-                username=ssh_config.user,
-                pkey=key,
-                timeout=30
-            )
-            print_success("Connexion SSH établie")
-        except Exception as e:
-            print_error(f"Impossible de se connecter: {e}")
-        
-        # Crée le gestionnaire de restauration BDD
-        db_restore = DatabaseRestore(
-            ssh_client=ssh_client,
-            db_host=db_config.host,
-            db_port=db_config.port,
-            db_name=db_config.name,
-            db_user=db_config.user,
-            db_password=db_config.password.get_secret_value(),
+        # Crée le gestionnaire de chargement Docker BDD
+        db_load = DockerDatabaseLoad(
+            container_name=container,
+            wordpress_container=wordpress_container,
+            db_name=db_name,
+            db_user=db_user,
+            db_password=db_password,
         )
         
-        # Lance la restauration
-        console.print(f"\n[cyan]Restauration de la base de données...[/]")
-        console.print(f"[dim]Dump: {dump_file}[/]")
-        console.print(f"[dim]Hôte: {db_config.host}:{db_config.port}[/]")
-        console.print(f"[dim]Base: {db_config.name}[/]")
-        
-        success, message = db_restore.restore_from_file(Path(dump_file))
+        # Lance le chargement
+        success, message = db_load.load_from_file(Path(dump_file))
         
         if success:
             console.print(f"\n{message}")
-            console.print(f"[green]Restauration réussie![/]")
+            console.print(f"[green]Chargement réussi![/]")
         
     except Exception as e:
-        print_error(f"Erreur lors de la restauration BDD: {e}")
-    finally:
-        # Ferme la connexion SSH
-        try:
-            ssh_client.close()
-        except:
-            pass
+        print_error(f"Erreur lors du chargement BDD: {e}")
+
+
+@load.command()
+@click.option('--container', '-c', default='backup-test-wordpress',
+              help="Nom du container WordPress Docker (défaut: backup-test-wordpress)")
+@click.option('--old-url', '-o', required=True,
+              help="Ancienne URL (ex: https://www.feelgoodbymelanie.com)")
+@click.option('--new-url', '-n', required=True,
+              help="Nouvelle URL (ex: http://localhost:8080)")
+def setup(container: str, old_url: str, new_url: str) -> None:
+    """Configure WordPress pour Docker local après chargement.
+    
+    Utilise wp-cli pour :
+    - Configurer le système de fichiers (FS_METHOD = 'direct')
+    - Mettre à jour siteurl et home
+    - Faire un search-replace sur le contenu
+    """
+    from backup_site.docker_load.wordpress import DockerWordPressAdapter
+    
+    try:
+        console.print("[cyan]Configuration de WordPress pour Docker local...[/]")
+        console.print(f"[dim]Container: {container}[/]")
+        console.print(f"[dim]Ancien URL: {old_url}[/]")
+        console.print(f"[dim]Nouveau URL: {new_url}[/]")
+        
+        # Crée l'adaptateur WordPress
+        adapter = DockerWordPressAdapter(
+            container_name=container,
+            old_url=old_url,
+            new_url=new_url,
+        )
+        
+        # Configure WordPress
+        success, message = adapter.setup()
+        
+        if success:
+            console.print(f"\n{message}")
+            
+            # Vérifie la configuration
+            console.print("\n[cyan]Vérification de la configuration...[/]")
+            success, verify_msg = adapter.verify()
+            console.print(f"\n{verify_msg}")
+            console.print(f"[green]Configuration réussie![/]")
+        
+    except Exception as e:
+        print_error(f"Erreur lors de la configuration: {e}")
+
+
+# Alias pour compatibilité
+@load.command(name="adapt-urls")
+@click.option('--container', '-c', default='backup-test-wordpress',
+              help="Nom du container WordPress Docker (défaut: backup-test-wordpress)")
+@click.option('--old-url', '-o', required=True,
+              help="Ancienne URL (ex: https://www.feelgoodbymelanie.com)")
+@click.option('--new-url', '-n', required=True,
+              help="Nouvelle URL (ex: http://localhost:8080)")
+def adapt_urls(container: str, old_url: str, new_url: str) -> None:
+    """Alias deprecated pour 'setup'. Utiliser 'setup' à la place."""
+    console.print("[yellow]⚠️  adapt-urls est deprecated, utiliser 'setup' à la place[/]")
+    setup(container, old_url, new_url)
 
 
 if __name__ == "__main__":

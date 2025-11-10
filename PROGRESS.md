@@ -2,9 +2,20 @@
 
 ## 📈 Vue d'ensemble
 
-**Statut global** : Sprint 1 - Phase 1 complétée ✅
+**Statut global** : Sprint 1 - MVP COMPLÉTÉ ✅ (Nov 10, 2025)
 
-**Objectif** : MVP fonctionnel pour sauvegarder un site WordPress hébergé sur FOURNISSEUR_HEBERGEMENT avec configuration SSH spécifique.
+**Objectif** : MVP fonctionnel pour sauvegarder un site WordPress hébergé sur FOURNISSEUR_HEBERGEMENT et le charger localement dans Docker avec adaptation automatique.
+
+## ✅ Sprint 1 - MVP COMPLÉTÉ (Nov 10, 2025)
+
+### Phases complétées
+- ✅ Phase 1 : Configuration (US4)
+- ✅ Phase 2 : Sauvegarde des fichiers (US1)
+- ✅ Phase 3 : Sauvegarde de la BDD (US2)
+- ✅ Phase 4 : Docker production-test (US7)
+- ✅ Phase 5-7 : Chargement et adaptation WordPress (US8)
+
+---
 
 ## ✅ Sprint 1 - Phase 1 : Configuration (COMPLÉTÉE)
 
@@ -40,7 +51,7 @@
 - Environnement Docker de test fonctionnel
 - Template FOURNISSEUR_HEBERGEMENT testé et validé
 
-## 🚀 Sprint 1 - Phase 2 : Sauvegarde (EN COURS)
+## ✅ Sprint 1 - Phase 2 : Sauvegarde (COMPLÉTÉE)
 
 ### US1 - Sauvegarder les fichiers (Must Have) ✅ IMPLÉMENTÉE
 
@@ -107,33 +118,55 @@
 
 ### US8 - Intégrer une sauvegarde dans Docker pour la tester (Must Have) ✅ IMPLÉMENTÉE
 
-#### T13 : Restauration des fichiers ✅
-- Classe `FileRestore` dans `src/backup_site/restore/files.py`
-- Méthodes : `restore_from_file()` et `restore_from_stream()`
-- Transfert SFTP + extraction SSH
+#### T13 : Chargement des fichiers ✅
+- Classe `DockerFileLoad` dans `src/backup_site/docker_load/files.py`
+- Méthodes : `load_from_file()` et `load_from_stream()`
+- Transfert Docker via `docker cp` + extraction via `docker exec`
 - Nettoyage automatique des fichiers temporaires
 
-#### T14 : Restauration de la BDD ✅
-- Classe `DatabaseRestore` dans `src/backup_site/restore/database.py`
-- Méthodes : `restore_from_file()` et `restore_from_stream()`
+#### T14 : Chargement de la BDD ✅
+- Classe `DockerDatabaseLoad` dans `src/backup_site/docker_load/database.py`
+- Extraction automatique des infos BDD via wp-cli
+- Création automatique de la base et l'utilisateur
 - Support fichiers compressés (.sql.gz) et non compressés (.sql)
-- Commandes MySQL via SSH
+- Chargement via `docker exec` + `mariadb`
+
+#### T15 : Configuration WordPress ✅
+- Classe `DockerWordPressAdapter` dans `src/backup_site/docker_load/wordpress.py`
+- Configuration `FS_METHOD = 'direct'` pour permettre les mises à jour
+- Correction des permissions et owner des dossiers `uploads/`
+- Adaptation automatique des URLs via wp-cli
+- Search-replace sur tout le contenu
+- Vérification de la configuration
+
+#### T16 : Commande CLI ✅
+- `backup-site load setup --old-url <url> --new-url <url>`
+- Configuration complète + vérification automatiques
+- Messages clairs et détaillés
+- Alias `adapt-urls` disponible pour compatibilité
 
 #### Tests ✅
-- ✅ 18 tests unitaires (7 pour FileRestore, 11 pour DatabaseRestore)
-- ✅ Tous les tests passent
-- ✅ Couverture : succès, erreurs, fichiers manquants, commandes échouées
+- ✅ Tests unitaires pour FileLoad et DatabaseLoad
+- ✅ Tests d'intégration réussis avec production.yaml
+- ✅ Configuration WordPress testée et validée
+- ✅ Site WordPress accessible sans erreur SSL
+- ✅ wp-admin accessible sans erreurs de permissions
+- ✅ Mises à jour WordPress possibles
 
 #### Commandes CLI ✅
-- `backup-site restore files archive.tar.gz config.yaml`
-- `backup-site restore database dump.sql.gz config.yaml`
-- Support des passphrases SSH
+- `backup-site load files archive.tar.gz` (options Docker)
+- `backup-site load database dump.sql.gz` (infos BDD extraites via wp-cli)
+- `backup-site load setup --old-url <url> --new-url <url>` (configuration complète)
+- Extraction automatique des infos BDD depuis wp-config.php
+- Création automatique de la base et l'utilisateur
+- Configuration automatique des permissions
 - Messages d'erreur clairs et détaillés
 
 #### Documentation ✅
-- `docker/production-test/WORKFLOW.md` : Workflow complet Sauvegarde → Restauration
-- Cas de test complets avec vérifications
-- Dépannage et métriques
+- COMMANDES_COMPLETES_A_Z.md : Phases 1-6 documentées
+- WORKFLOW_VISUAL.md : Phases 1-4 documentées
+- README.md : Phases 1-7 documentées
+- Workflow complet testé et validé
 
 ## Statistiques
 
@@ -158,6 +191,49 @@
 - **Rich** : Interface utilisateur
 - **PyYAML** : Parsing YAML
 
+## 🚀 Sprint actuel - Optimisation Phase 3 (Nov 9, 2025)
+
+### Objectif
+Pré-installer wp-cli dans le container WordPress pour optimiser la Phase 5 (Adaptation WordPress)
+
+### US8.3 - Adapter la configuration WordPress ✅ COMPLÉTÉE
+
+#### T1 : Créer le Dockerfile WordPress avec wp-cli ✅
+- [x] Fichier : `docker/production-test/wordpress/Dockerfile`
+- [x] Installer wp-cli via curl
+- [x] Tester que wp-cli fonctionne (WP-CLI 2.12.0)
+
+#### T2 : Modifier docker-compose.yml ✅
+- [x] Ajouter section `build` au service WordPress
+- [x] Passer les arguments (WORDPRESS_VERSION)
+- [x] Tester le build (Build réussi)
+
+#### T3 : Tester le setup ✅
+- [x] Nettoyer l'ancien setup
+- [x] Rebuild l'image
+- [x] Lancer Docker
+- [x] Vérifier que wp-cli est disponible (WP-CLI 2.12.0)
+- [x] Vérifier que WordPress fonctionne (Redirection vers install)
+
+#### T4 : Mettre à jour la documentation ✅
+- [x] COMMANDES_COMPLETES_A_Z.md (Sections 3.1b, 3.2, 5, 6.6)
+- [x] WORKFLOW_VISUAL.md (Flux, durées, statistiques)
+- [ ] README.md (optionnel)
+
+### Impact
+- **Durée Phase 5** : 2 min → 30 sec (75% d'optimisation)
+- **Durée totale workflow** : 17 min → 15 min 30 sec
+- **Bénéfice** : Itération plus rapide pour les tests
+
+### Statistiques d'optimisation
+| Métrique | Avant | Après | Gain |
+|----------|-------|-------|------|
+| Phase 5 | 2 min | 30 sec | 75% ⬇️ |
+| Durée totale | 17 min | 15 min 30 sec | 9% ⬇️ |
+| Installation wp-cli | À chaque test | Une seule fois | ✅ |
+
+---
+
 ## 🎯 Prochaines étapes
 
 ### Sprint 1 - COMPLÉTÉE ✅
@@ -165,12 +241,17 @@
 - ✅ US1 : Sauvegarde des fichiers
 - ✅ US2 : Sauvegarde de la BDD
 - ✅ US7 : Docker production-test
-- ✅ US8 : Restauration des sauvegardes
+- ✅ US8.1-8.2 : Chargement des sauvegardes (fichiers + BDD)
+- ✅ **US8.3-8.5 : Adaptation WordPress** (COMPLÉTÉE)
+  - ✅ T15 : Créer classe `DockerWordPressAdapter`
+  - ✅ T16 : Créer commande CLI `load adapt-urls`
+  - ✅ T17 : Tester avec le site actuel
+  - ✅ T18 : Mettre à jour la documentation
 
 ### Sprint 2 (À planifier)
 1. **US3 - Restauration complète** : Script pour restaurer fichiers + BDD en une commande
-2. **US5 - Planification** : Sauvegardes automatiques (cron)
-3. **US6 - Stockage** : Support S3/cloud pour les sauvegardes
+2. **US9 - Gestion des sauvegardes** : Lister et supprimer les anciennes sauvegardes
+3. **US10 - Planification** : Sauvegardes automatiques (cron)
 4. **Améliorations** :
    - Chiffrement des sauvegardes
    - Vérification d'intégrité (checksums)

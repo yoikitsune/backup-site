@@ -9,15 +9,15 @@
 ```
 PRODUCTION (FOURNISSEUR_HEBERGEMENT)          LOCAL (ton ordinateur)
 ┌─────────────────────┐        ┌──────────────────────────────┐
-│ feelgoodbymelanie   │        │ Docker (test local)          │
+│ Mon site WordPress  │        │ Docker (test local)          │
 │ - Fichiers          │        │ ┌────────────────────────┐   │
 │ - BDD WordPress     │        │ │ backup-test-mysql      │   │
 │ - PHP 8.1           │        │ │ backup-test-wordpress  │   │
 │ - MariaDB 11.4      │        │ │ backup-test-ssh        │   │
-│ - WordPress 6.8.3   │        │ └────────────────────────┘   │
+│ - WordPress 6.8     │        │ └────────────────────────┘   │
 └─────────────────────┘        └──────────────────────────────┘
          │                               ▲
-         │ 1. Sauvegarde                │ 5. Restauration
+         │ 1. Sauvegarde                │ 5. Chargement
          │ (fichiers + BDD)             │
          ▼                               │
     ┌─────────────────┐                 │
@@ -37,12 +37,12 @@ PRODUCTION (FOURNISSEUR_HEBERGEMENT)          LOCAL (ton ordinateur)
 **Fichier** : `docker/production-test/.env`
 
 ```bash
-# Versions (adaptées à FOURNISSEUR_HEBERGEMENT - feelgoodbymelanie.com)
+# Versions (à adapter selon votre production)
 PHP_VERSION=8.1
 MYSQL_VERSION=11.4
 WORDPRESS_VERSION=6.8
 
-# Accès MySQL
+# Accès MySQL (Docker local)
 MYSQL_ROOT_PASSWORD=root
 MYSQL_DATABASE=wordpress
 MYSQL_USER=wordpress
@@ -58,10 +58,8 @@ MYSQL_PORT=3307
 SSH_PORT=2222
 ```
 
-**Pourquoi ces versions ?**
-- PHP 8.1 = Version sur FOURNISSEUR_HEBERGEMENT
-- MariaDB 11.4 = Version sur FOURNISSEUR_HEBERGEMENT
-- WordPress 6.8 = Version sur FOURNISSEUR_HEBERGEMENT
+**⚠️ À adapter** : Remplacer les versions par celles de votre serveur de production.
+- Vérifiez les versions PHP, MySQL/MariaDB et WordPress sur votre serveur
 - Cela garantit que le test local reproduit exactement la production
 
 ### ✅ Checklist Étape 1
@@ -236,10 +234,10 @@ ls -lh backups/production/
 
 ## 📥 Étape 4 : Restaurer les fichiers
 
-### 4.1 Restaurer l'archive des fichiers
+### 4.1 Charger l'archive des fichiers
 
 ```bash
-.venv/bin/backup-site restore files backups/production/files.tar.gz config/production.yaml
+.venv/bin/backup-site load files backups/production/files.tar.gz --container backup-test-wordpress
 ```
 
 **Qu'est-ce qui se passe ?**
@@ -303,11 +301,13 @@ drwxr-xr-x 30 testuser testuser 12288  4 sept. 18:07 wp-includes
 
 ## 🗄️ Étape 5 : Restaurer la base de données
 
-### 5.1 Restaurer le dump SQL
+### 5.1 Charger le dump SQL
 
 ```bash
-.venv/bin/backup-site restore database backups/production/database.sql.gz config/production.yaml
+.venv/bin/backup-site load database backups/production/database.sql.gz
 ```
+
+**Note** : Les infos de la BDD sont extraites automatiquement depuis `wp-config.php` via wp-cli !
 
 **Qu'est-ce qui se passe ?**
 
@@ -338,7 +338,27 @@ drwxr-xr-x 30 testuser testuser 12288  4 sept. 18:07 wp-includes
    Taille: 1515.38 KB
    ```
 
-### 5.2 Vérifier les tables restaurées
+### 5.2 Configurer WordPress pour Docker local
+
+```bash
+.venv/bin/backup-site load setup --old-url "https://www.feelgoodbymelanie.com" --new-url "http://localhost:8080"
+```
+
+**Ce que fait la commande** :
+1. Configure `FS_METHOD = 'direct'` pour permettre les mises à jour
+2. Corrige les permissions et l'owner des dossiers `uploads/`
+3. Met à jour `siteurl` et `home` via wp-cli
+4. Fait un search-replace sur le contenu
+5. Vérifie que tout fonctionne
+
+**Résultat** :
+```
+✓ Configuration de WordPress réussie
+  Filesystem: FS_METHOD = 'direct' configuré
+  Permissions: uploads/ corrigées
+```
+
+### 5.3 Vérifier les tables restaurées
 
 ```bash
 docker compose exec mysql mysql -u wordpress -pwordpress wordpress -e "SHOW TABLES;"

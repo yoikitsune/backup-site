@@ -1,8 +1,8 @@
-"""Module de restauration de la base de données MySQL via SSH.
+"""Module de chargement de la base de données MySQL via SSH.
 
 Stratégie :
 - Télécharge le dump SQL (compressé ou non) depuis le serveur local vers le client
-- Restaure le dump via SSH tunnel (localhost:3306)
+- Charge le dump via SSH tunnel (localhost:3306)
 - Compatible avec MySQL et MariaDB
 
 Flux :
@@ -21,8 +21,8 @@ from paramiko.ssh_exception import SSHException
 logger = logging.getLogger(__name__)
 
 
-class DatabaseRestore:
-    """Gère la restauration de la base de données MySQL via SSH."""
+class DatabaseLoad:
+    """Gère le chargement de la base de données MySQL via SSH."""
     
     def __init__(
         self,
@@ -33,7 +33,7 @@ class DatabaseRestore:
         db_user: str,
         db_password: str,
     ):
-        """Initialise le gestionnaire de restauration de BDD.
+        """Initialise le gestionnaire de chargement de BDD.
         
         Args:
             ssh_client: Client SSH Paramiko connecté
@@ -50,15 +50,15 @@ class DatabaseRestore:
         self.db_user = db_user
         self.db_password = db_password
     
-    def _build_restore_command(self, dump_file: str, is_compressed: bool) -> str:
-        """Construit la commande de restauration MySQL.
+    def _build_load_command(self, dump_file: str, is_compressed: bool) -> str:
+        """Construit la commande de chargement MySQL.
         
         Args:
             dump_file: Chemin du fichier dump sur le serveur
             is_compressed: Si le fichier est compressé (gzip)
             
         Returns:
-            Commande de restauration complète
+            Commande de chargement complète
         """
         # Commande mysql de base
         mysql_cmd = (
@@ -75,17 +75,17 @@ class DatabaseRestore:
         
         return cmd
     
-    def restore_from_file(
+    def load_from_file(
         self,
         dump_path: Path,
         buffer_size: int = 65536
     ) -> Tuple[bool, str]:
-        """Restaure la base de données depuis un fichier dump.
+        """Charge la base de données depuis un fichier dump.
         
         Stratégie :
         1. Crée un répertoire temporaire sur le serveur
         2. Télécharge le dump via SFTP
-        3. Restaure le dump via SSH
+        3. Charge le dump via SSH
         4. Nettoie les fichiers temporaires
         
         Args:
@@ -112,7 +112,7 @@ class DatabaseRestore:
             dump_name = dump_path.name
             temp_dump = f"/tmp/{dump_name}"
             
-            logger.info(f"Restauration de {dump_name} vers la base {self.db_name}")
+            logger.info(f"Chargement de {dump_name} vers la base {self.db_name}")
             
             # Étape 1 : Télécharge le dump via SFTP
             logger.debug(f"Téléchargement de {dump_path} vers {temp_dump}")
@@ -122,10 +122,10 @@ class DatabaseRestore:
             finally:
                 sftp_client.close()
             
-            # Étape 2 : Restaure le dump via SSH
-            logger.debug(f"Restauration du dump {temp_dump}")
-            restore_cmd = self._build_restore_command(temp_dump, is_compressed)
-            stdin, stdout, stderr = self.ssh_client.exec_command(restore_cmd)
+            # Étape 2 : Charge le dump via SSH
+            logger.debug(f"Chargement du dump {temp_dump}")
+            load_cmd = self._build_load_command(temp_dump, is_compressed)
+            stdin, stdout, stderr = self.ssh_client.exec_command(load_cmd)
             
             # Vérifie s'il y a eu des erreurs
             stderr_output = stderr.read().decode('utf-8', errors='ignore').strip()
@@ -136,7 +136,7 @@ class DatabaseRestore:
             exit_status = stdout.channel.recv_exit_status()
             if exit_status != 0:
                 raise SSHException(
-                    f"La commande de restauration a échoué avec le code {exit_status}. "
+                    f"La commande de chargement a échoué avec le code {exit_status}. "
                     f"Erreur: {stderr_output}"
                 )
             
@@ -147,7 +147,7 @@ class DatabaseRestore:
             stdout.channel.recv_exit_status()
             
             message = (
-                f"✓ Restauration de la base de données réussie\n"
+                f"✓ Chargement de la base de données réussi\n"
                 f"  Dump: {dump_name}\n"
                 f"  Base: {self.db_name}\n"
                 f"  Taille: {dump_path.stat().st_size / 1024:.2f} KB"
@@ -161,7 +161,7 @@ class DatabaseRestore:
             logger.error(error_msg)
             raise
         except SSHException as e:
-            error_msg = f"Erreur SSH lors de la restauration BDD: {str(e)}"
+            error_msg = f"Erreur SSH lors du chargement BDD: {str(e)}"
             logger.error(error_msg)
             raise
         except IOError as e:
@@ -169,13 +169,13 @@ class DatabaseRestore:
             logger.error(error_msg)
             raise
     
-    def restore_from_stream(
+    def load_from_stream(
         self,
         dump_data: bytes,
         is_compressed: bool = True,
         buffer_size: int = 65536
     ) -> Tuple[bool, str]:
-        """Restaure la base de données depuis un flux de données (dump en mémoire).
+        """Charge la base de données depuis un flux de données (dump en mémoire).
         
         Utile pour les tests ou pour traiter les données en mémoire.
         
@@ -193,9 +193,9 @@ class DatabaseRestore:
         """
         try:
             # Génère un nom de fichier temporaire
-            temp_dump = "/tmp/restore_stream.sql.gz" if is_compressed else "/tmp/restore_stream.sql"
+            temp_dump = "/tmp/load_stream.sql.gz" if is_compressed else "/tmp/load_stream.sql"
             
-            logger.info(f"Restauration depuis un flux vers la base {self.db_name}")
+            logger.info(f"Chargement depuis un flux vers la base {self.db_name}")
             
             # Étape 1 : Télécharge le flux via SFTP
             logger.debug(f"Téléchargement du flux vers {temp_dump}")
@@ -206,10 +206,10 @@ class DatabaseRestore:
             finally:
                 sftp_client.close()
             
-            # Étape 2 : Restaure le dump via SSH
-            logger.debug(f"Restauration du dump {temp_dump}")
-            restore_cmd = self._build_restore_command(temp_dump, is_compressed)
-            stdin, stdout, stderr = self.ssh_client.exec_command(restore_cmd)
+            # Étape 2 : Charge le dump via SSH
+            logger.debug(f"Chargement du dump {temp_dump}")
+            load_cmd = self._build_load_command(temp_dump, is_compressed)
+            stdin, stdout, stderr = self.ssh_client.exec_command(load_cmd)
             
             # Vérifie s'il y a eu des erreurs
             stderr_output = stderr.read().decode('utf-8', errors='ignore').strip()
@@ -220,7 +220,7 @@ class DatabaseRestore:
             exit_status = stdout.channel.recv_exit_status()
             if exit_status != 0:
                 raise SSHException(
-                    f"La commande de restauration a échoué avec le code {exit_status}. "
+                    f"La commande de chargement a échoué avec le code {exit_status}. "
                     f"Erreur: {stderr_output}"
                 )
             
@@ -231,7 +231,7 @@ class DatabaseRestore:
             stdout.channel.recv_exit_status()
             
             message = (
-                f"✓ Restauration depuis un flux réussie\n"
+                f"✓ Chargement depuis un flux réussi\n"
                 f"  Base: {self.db_name}\n"
                 f"  Taille: {len(dump_data) / 1024:.2f} KB"
             )
@@ -240,7 +240,7 @@ class DatabaseRestore:
             return True, message
             
         except SSHException as e:
-            error_msg = f"Erreur SSH lors de la restauration BDD: {str(e)}"
+            error_msg = f"Erreur SSH lors du chargement BDD: {str(e)}"
             logger.error(error_msg)
             raise
         except IOError as e:

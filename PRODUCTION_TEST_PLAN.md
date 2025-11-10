@@ -379,10 +379,10 @@ backup-test-ssh         Up
 
 ## 📥 Étape 5 : Restaurer les sauvegardes
 
-### 5.1 Restaurer les fichiers
+### 5.1 Charger les fichiers
 
 ```bash
-.venv/bin/backup-site restore files backups/production/files.tar.gz config/production.yaml
+.venv/bin/backup-site load files backups/production/files.tar.gz --container backup-test-wordpress
 ```
 
 **Résultat attendu** :
@@ -410,11 +410,13 @@ Restauration réussie!
 - Vérifier les permissions d'écriture
 - Vérifier l'espace disque
 
-### 5.2 Restaurer la base de données
+### 5.2 Charger la base de données
 
 ```bash
-.venv/bin/backup-site restore database backups/production/database.sql.gz config/production.yaml
+.venv/bin/backup-site load database backups/production/database.sql.gz
 ```
+
+**Note** : Les infos de la BDD sont extraites automatiquement depuis `wp-config.php` via wp-cli !
 
 **Résultat attendu** :
 ```
@@ -442,10 +444,40 @@ Restauration réussie!
 - Vérifier que la base de données existe
 - Vérifier les permissions utilisateur MySQL
 
+### 5.3 Configurer WordPress pour Docker local
+
+```bash
+.venv/bin/backup-site load setup --old-url "https://www.feelgoodbymelanie.com" --new-url "http://localhost:8080"
+```
+
+**Note** : Cette commande configure automatiquement :
+- `FS_METHOD = 'direct'` pour permettre les mises à jour
+- Les permissions des dossiers `uploads/`
+- Les URLs WordPress (siteurl, home)
+- Un search-replace sur le contenu
+
+**Résultat attendu** :
+```
+✓ Configuration de WordPress réussie
+  Container: backup-test-wordpress
+  Ancien URL: https://www.feelgoodbymelanie.com
+  Nouveau URL: http://localhost:8080
+  Filesystem: FS_METHOD = 'direct' configuré
+  Permissions: uploads/ corrigées
+
+✓ Vérification réussie
+  siteurl: http://localhost:8080
+  home: http://localhost:8080
+Configuration réussie!
+```
+
+**Temps estimé** : 1 minute
+
 ### ✅ Checklist Étape 5
 
-- [ ] Restauration des fichiers réussie
-- [ ] Restauration de la BDD réussie
+- [ ] Chargement des fichiers réussi
+- [ ] Chargement de la BDD réussi
+- [ ] Configuration WordPress réussie
 - [ ] Pas d'erreurs affichées
 
 ---

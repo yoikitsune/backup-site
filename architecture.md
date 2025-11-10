@@ -34,29 +34,33 @@ backup-site/
 │       ├── cli.py              # Commandes CLI principales
 │       ├── backup/
 │       │   ├── __init__.py
-│       │   ├── files.py        # Gestion des fichiers
-│       │   ├── database.py     # Gestion des bases de données
-│       │   └── archive.py      # Création des archives
+│       │   ├── files.py        # FileBackup - Sauvegarde des fichiers (SSH)
+│       │   └── database.py     # DatabaseBackup - Sauvegarde BDD (SSH tunnel)
+│       ├── docker_load/        # Chargement dans Docker (MVP)
+│       │   ├── __init__.py
+│       │   ├── files.py        # DockerFileLoad
+│       │   ├── database.py     # DockerDatabaseLoad
+│       │   └── wordpress.py    # DockerWordPressAdapter
 │       ├── config/
 │       │   ├── __init__.py
 │       │   ├── settings.py     # Configuration par défaut
-│       │   └── providers.py    # Configurations par hébergeur
+│       │   └── validators.py   # Validation des configurations
 │       └── utils/
 │           ├── __init__.py
-│           ├── logger.py       # Logging
 │           └── helpers.py      # Fonctions utilitaires
 ├── docker/
 │   ├── test-ssh-server/        # Serveur SSH de test (pour tester les sauvegardes)
 │   │   ├── Dockerfile
 │   │   ├── compose.yml
 │   │   └── entrypoint.sh
-│   └── production-test/        # Environnement de test production (pour tester les restaurations)
+│   └── production-test/        # Environnement de test production (pour tester les chargements)
 │       ├── docker-compose.yml
 │       ├── .env.example
-│       └── restore-scripts/
+│       ├── wordpress/          # Dockerfile WordPress avec wp-cli
+│       └── ssh-server/         # Dockerfile SSH server
 ├── config/
-│   ├── FOURNISSEUR_HEBERGEMENT.yaml          # Configuration FOURNISSEUR_HEBERGEMENT
-│   └── wordpress.yaml         # Configuration WordPress
+│   ├── FOURNISSEUR_HEBERGEMENT-wordpress.yaml # Configuration FOURNISSEUR_HEBERGEMENT WordPress
+│   └── example-site.yaml       # Configuration générique
 ├── tests/
 ├── pyproject.toml
 └── README.md
@@ -69,9 +73,13 @@ backup-site/
 - Sous-commandes : `backup`, `restore`, `list`, `config`
 
 ### 2. Backup Engine
-- **FileBackup** : Sauvegarde des fichiers avec exclusion/inclusion
-- **DatabaseBackup** : Sauvegarde MySQL/MariaDB via mysqldump
-- **ArchiveManager** : Création et gestion des archives
+- **FileBackup** : Sauvegarde des fichiers avec exclusion/inclusion (SSH)
+- **DatabaseBackup** : Sauvegarde MySQL/MariaDB via mysqldump (SSH tunnel)
+
+### 2b. Docker Load Engine
+- **DockerFileLoad** : Chargement des fichiers dans Docker via `docker cp` + `docker exec`
+- **DockerDatabaseLoad** : Chargement de la BDD dans Docker via `docker exec`
+- **DockerWordPressAdapter** : Adaptation automatique des URLs WordPress via wp-cli
 
 ### 3. Configuration System
 - **SiteConfig** : Configuration complète du site (hébergeur, CMS, SSH, BDD)
@@ -81,13 +89,14 @@ backup-site/
 
 ### 4. Docker Integration (US7 + US8)
 - **ProductionTestEnv** : Environnement Docker reproduisant la production
-  - Services : WordPress, MySQL/MariaDB, SSH
-  - Versions configurables (PHP_VERSION, MYSQL_VERSION)
+  - Services : WordPress (avec wp-cli pré-installé), MySQL/MariaDB, SSH
+  - Versions configurables (PHP_VERSION, MYSQL_VERSION, WORDPRESS_VERSION)
   - Permet de tester les sauvegardes et restaurations
-- **RestoreScripts** : Scripts pour restaurer les sauvegardes dans Docker
-  - Restauration des fichiers
-  - Restauration de la base de données
-  - Vérification de l'intégrité
+  - Fichier : `docker/production-test/docker-compose.yml`
+- **DockerLoad** : Classes pour charger les sauvegardes dans Docker
+  - `DockerFileLoad` : Chargement des fichiers via `docker cp` + extraction
+  - `DockerDatabaseLoad` : Chargement de la BDD via `docker exec`
+  - `DockerWordPressAdapter` : Adaptation des URLs et configuration WordPress
 
 ## Format des configurations
 

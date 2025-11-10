@@ -29,18 +29,24 @@ Solution CLI de sauvegarde de site web avec support Docker, optimisée pour Word
 - [x] Commande CLI : `backup-site backup database <config>`
 
 **Phase 4 - Restauration des fichiers (US8)** ✅
-- [x] Restauration des fichiers depuis archive tar.gz
-- [x] Transfert SFTP + extraction SSH
+- [x] Chargement des fichiers depuis archive tar.gz (Docker local)
+- [x] Transfert via docker cp + extraction via docker exec
 - [x] Tests unitaires complets
-- [x] Commande CLI : `backup-site restore files <archive> <config>`
+- [x] Commande CLI : `backup-site load files <archive> --container <name>`
 
-**Phase 5 - Restauration de la BDD (US8)** ✅
-- [x] Restauration MySQL depuis dump SQL
+**Phase 5 - Chargement de la BDD (US8)** ✅
+- [x] Chargement MySQL depuis dump SQL (Docker local)
 - [x] Support fichiers compressés et non-compressés
 - [x] Tests unitaires complets
-- [x] Commande CLI : `backup-site restore database <dump> <config>`
+- [x] Commande CLI : `backup-site load database <dump>` (infos BDD extraites via wp-cli)
 
-**Phase 6 - Docker production-test (US7)** ✅
+**Phase 6 - Adaptation des URLs WordPress (US8)** ✅
+- [x] Adaptation automatique des URLs via wp-cli
+- [x] Search-replace sur tout le contenu
+- [x] Vérification de l'adaptation
+- [x] Commande CLI : `backup-site load adapt-urls --old-url <url> --new-url <url>`
+
+**Phase 7 - Docker production-test (US7)** ✅
 - [x] docker-compose.yml avec WordPress, MySQL, SSH
 - [x] Configuration par variables d'environnement
 - [x] Support des versions PHP, MySQL, WordPress
@@ -155,10 +161,19 @@ backup-site ssh setup-guide               # Afficher le guide de configuration S
 backup-site ssh test <config>             # Tester la connexion SSH
 ```
 
-### Sauvegarde
+### Sauvegarde (depuis production)
 ```bash
 backup-site backup files <config>         # Sauvegarder les fichiers
 backup-site backup files <config> -o <path>  # Sauvegarder avec chemin personnalisé
+backup-site backup database <config>      # Sauvegarder la BDD
+backup-site backup database <config> -o <path>  # Sauvegarder la BDD avec chemin personnalisé
+```
+
+### Chargement (dans Docker local)
+```bash
+backup-site load files <archive>          # Charger les fichiers dans Docker
+backup-site load database <dump>          # Charger la BDD dans Docker
+backup-site load setup --old-url <url> --new-url <url>  # Adapter WordPress (URLs + BDD)
 ```
 
 ### Utilitaires
@@ -228,14 +243,19 @@ Pour tester backup-site avec un vrai serveur en production (FOURNISSEUR_HEBERGEM
    backup-site backup database config/production.yaml -o backups/prod_db.sql.gz
    ```
 
-4. **Restaurer dans Docker** :
+4. **Charger dans Docker** :
    ```bash
    cd docker/production-test
    nano .env  # Adapter les versions PHP/MySQL/WordPress
    docker compose up -d
    cd ../..
-   backup-site restore files backups/prod_files.tar.gz config/production.yaml
-   backup-site restore database backups/prod_db.sql.gz config/production.yaml
+   
+   # Charger les sauvegardes
+   backup-site load files backups/prod_files.tar.gz
+   backup-site load database backups/prod_db.sql.gz
+   
+   # Adapter la configuration WordPress
+   backup-site load setup --old-url "https://www.feelgoodbymelanie.com" --new-url "http://localhost:8080"
    ```
 
 5. **Vérifier** :
