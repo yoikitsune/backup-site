@@ -62,9 +62,9 @@ backup-site load setup --old-url <url> --new-url <url>
 
 ## 📚 Documentation
 
-- **README.md** : Guide complet d'installation et utilisation
-- **architecture.md** : Détails techniques et structure du projet
-- **PROGRESS.md** : Historique des phases complétées
-- **COMMANDES_COMPLETES_A_Z.md** : Workflow complet étape par étape
-- **WORKFLOW_COMPLET.md** : Diagramme et détails du workflow
-- **TESTING.md** : Guide de test et validation
+- **[README.md](../../README.md)** : Guide complet d'installation et utilisation
+- **[architecture.md](../architecture/architecture.md)** : Détails techniques et structure du projet
+- **[PROGRESS.md](../progress/PROGRESS.md)** : Historique des phases complétées
+- **[COMMANDES_COMPLETES_A_Z.md](../workflows/COMMANDES_COMPLETES_A_Z.md)** : Workflow complet étape par étape
+- **[WORKFLOW_COMPLET.md](../workflows/WORKFLOW_COMPLET.md)** : Diagramme et détails du workflow
+- **[TESTING.md](../development/TESTING.md)** : Guide de test et validation

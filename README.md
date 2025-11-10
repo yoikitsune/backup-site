@@ -264,13 +264,13 @@ Pour tester backup-site avec un vrai serveur en production (FOURNISSEUR_HEBERGEM
    docker compose exec mysql mysql -u wordpress -pwordpress wordpress -e "SHOW TABLES;"
    ```
 
-**Plan détaillé** : Voir [PRODUCTION_TEST_PLAN.md](PRODUCTION_TEST_PLAN.md)
+**Plan détaillé** : Voir [PRODUCTION_TEST_PLAN.md](docs/workflows/PRODUCTION_TEST_PLAN.md)
 
 ---
 
 ## 🧪 Tests
 
-Pour plus de détails sur les tests, voir [TESTING.md](TESTING.md).
+Pour plus de détails sur les tests, voir [TESTING.md](docs/development/TESTING.md).
 
 ### Tests unitaires
 ```bash

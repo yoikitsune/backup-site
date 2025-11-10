@@ -141,25 +141,25 @@ SPRINT_REVIEWS/                 # Revues
 ## 🔍 Navigation par audience
 
 ### 👤 Product Owner
-1. [vision.md](vision.md) - Vision et objectifs
-2. [backlog.md](backlog.md) - User stories
-3. [PROGRESS.md](PROGRESS.md) - État d'avancement
+1. [vision.md](../planning/vision.md) - Vision et objectifs
+2. [backlog.md](../planning/backlog.md) - User stories
+3. [PROGRESS.md](../progress/PROGRESS.md) - État d'avancement
 
 ### 👨‍💻 Développeur
-1. [README.md](README.md) - Installation
-2. [architecture.md](architecture.md) - Architecture
-3. [IMPLEMENTATION_NOTES.md](IMPLEMENTATION_NOTES.md) - Décisions
-4. [TESTING.md](TESTING.md) - Tests
+1. [README.md](../../README.md) - Installation
+2. [architecture.md](../architecture/architecture.md) - Architecture
+3. [IMPLEMENTATION_NOTES.md](../architecture/IMPLEMENTATION_NOTES.md) - Décisions
+4. [TESTING.md](../development/TESTING.md) - Tests
 
 ### 🧪 Testeur
-1. [TESTING.md](TESTING.md) - Stratégie
-2. [PRODUCTION_TEST_PLAN.md](PRODUCTION_TEST_PLAN.md) - Plan
-3. [WORKFLOW_COMPLET.md](WORKFLOW_COMPLET.md) - Workflow
+1. [TESTING.md](../development/TESTING.md) - Stratégie
+2. [PRODUCTION_TEST_PLAN.md](../workflows/PRODUCTION_TEST_PLAN.md) - Plan
+3. [WORKFLOW_COMPLET.md](../workflows/WORKFLOW_COMPLET.md) - Workflow
 
 ### 🚀 DevOps/Opérateur
-1. [docker/production-test/README.md](docker/production-test/README.md) - Docker
-2. [PRODUCTION_TEST_PLAN.md](PRODUCTION_TEST_PLAN.md) - Déploiement
-3. [COMMANDES_COMPLETES_A_Z.md](COMMANDES_COMPLETES_A_Z.md) - Commandes
+1. [docker/production-test/README.md](../../docker/production-test/README.md) - Docker
+2. [PRODUCTION_TEST_PLAN.md](../workflows/PRODUCTION_TEST_PLAN.md) - Déploiement
+3. [COMMANDES_COMPLETES_A_Z.md](../workflows/COMMANDES_COMPLETES_A_Z.md) - Commandes
 
 ### 📚 Nouveau contributeur
 1. [README.md](README.md) - Vue d'ensemble
