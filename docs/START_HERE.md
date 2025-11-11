@@ -7,7 +7,7 @@ Bienvenue ! Ce fichier te guide pour naviguer dans la documentation du projet ba
 ## ⏱️ 5 minutes pour comprendre le projet
 
 ### 1. Lis la vision (2 min)
-**Fichier** : [vision.md](docs/planning/vision.md)
+**Fichier** : [vision.md](planning/vision.md)
 
 **Résumé** : Backup-site est une CLI pour sauvegarder des sites WordPress hébergés sur FOURNISSEUR_HEBERGEMENT et les charger localement dans Docker pour les tester.
 

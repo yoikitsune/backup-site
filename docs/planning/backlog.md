@@ -6,12 +6,12 @@
 - [x] **US1** : En tant que développeur, je veux sauvegarder les fichiers d'un site web ✅
   - *Détail* : Compression côté serveur via pipe SSH (`tar | gzip`) pour accélérer la récupération
 - [x] **US2** : En tant que développeur, je veux sauvegarder une base de données MySQL/MariaDB ✅
-- [ ] **US3** : En tant que développeur, je veux restaurer une sauvegarde complète (fichiers + BDD) [Sprint 2]
+- [ ] **US3** : En tant que développeur, je veux restaurer une sauvegarde complète (fichiers + BDD) _(postposé, hors périmètre Sprint 2)_
 
 ### Configuration
-- [ ] **US4** : En tant que développeur, je veux pouvoir créer facilement une configuration pour un site avec son hébergement, son type d'application, la clé SSH, les accès aux fichiers et à la base de données
-- [ ] **US5** : En tant que développeur, je veux pouvoir configurer facilement les paramètres de connexion à la base de données
-- [ ] **US6** : En tant que développeur, je veux pouvoir spécifier les dossiers à inclure/exclure de la sauvegarde
+- [x] **US4** : En tant que développeur, je veux pouvoir créer facilement une configuration pour un site avec son hébergement, son type d'application, la clé SSH, les accès aux fichiers et à la base de données ✅ _livré Sprint 1_
+- [x] **US5** : En tant que développeur, je veux pouvoir configurer facilement les paramètres de connexion à la base de données ✅ _livré Sprint 1_
+- [x] **US6** : En tant que développeur, je veux pouvoir spécifier les dossiers à inclure/exclure de la sauvegarde ✅ _livré Sprint 1_
 
 ### Intégration Docker
 - [x] **US7** : En tant que développeur, je veux pouvoir configurer facilement un docker pour refleter au mieux le serveur de production (version php, version mysql ou mariadb) ✅
@@ -57,8 +57,11 @@
 ## Priorisation (MoSCoW)
 
 ### Must Have (MVP) - WordPress + FOURNISSEUR_HEBERGEMENT
-- US1, US2, US3, US4, US7
+- US1, US2, US4, US7 _(réalisés)_
 - **Focus spécifique** : Configuration WordPress sur hébergement FOURNISSEUR_HEBERGEMENT avec gestion clés SSH publiques/privées
+
+### Dépriorisé (postposé)
+- US3 : restauration complète sur serveur distant (à revoir quand l'application sera plus mûre)
 
 ### Should Have
 - US5, US6, US8
