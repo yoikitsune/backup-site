@@ -498,7 +498,7 @@ def database(dump_file: str, container: str, wordpress_container: str, db_name: 
 @click.option('--container', '-c', default='backup-test-wordpress',
               help="Nom du container WordPress Docker (défaut: backup-test-wordpress)")
 @click.option('--old-url', '-o', required=True,
-              help="Ancienne URL (ex: https://www.feelgoodbymelanie.com)")
+              help="Ancienne URL (ex: https://www.site-de-production.com)")
 @click.option('--new-url', '-n', required=True,
               help="Nouvelle URL (ex: http://localhost:8080)")
 def setup(container: str, old_url: str, new_url: str) -> None:
@@ -545,7 +545,7 @@ def setup(container: str, old_url: str, new_url: str) -> None:
 @click.option('--container', '-c', default='backup-test-wordpress',
               help="Nom du container WordPress Docker (défaut: backup-test-wordpress)")
 @click.option('--old-url', '-o', required=True,
-              help="Ancienne URL (ex: https://www.feelgoodbymelanie.com)")
+              help="Ancienne URL (ex: https://www.site-de-production.com)")
 @click.option('--new-url', '-n', required=True,
               help="Nouvelle URL (ex: http://localhost:8080)")
 def adapt_urls(container: str, old_url: str, new_url: str) -> None:
