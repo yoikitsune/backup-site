@@ -29,6 +29,14 @@
 - [ ] **US9** : En tant que développeur, je veux lister les sauvegardes disponibles
 - [ ] **US10** : En tant que développeur, je veux supprimer des anciennes sauvegardes
 
+### Candidats Sprint 2 – Workflow multi-sites
+- [ ] **US-A** (config structure) : En tant qu'admin, je veux générer `sites/<slug>/config.yaml` complet (SSH, includes/excludes, BDD, backup) depuis un template pour disposer d'une config fonctionnelle immédiatement.
+- [ ] **US-B** (bootstrap SSH) : En tant qu'admin, je veux que `backup-site site guide/verify <slug>` propose `ssh-copy-id` par défaut et, selon le provider, affiche un guide dédié (FOURNISSEUR_HEBERGEMENT…) avant de tester la connexion.
+- [ ] **US-C** (helpers app) : En tant qu'admin, je veux que les helpers WordPress pré-remplissent les sections du `config.yaml` (lecture `wp-config.php`, métadonnées) sans m'empêcher de les modifier.
+- [ ] **US-D** (orchestration Docker) : À définir après revue des environnements – préparer la restauration locale automatique (sera détaillé ultérieurement).
+- [ ] **US-E** (restore orchestrée) : Orchestrer le chargement fichiers + BDD + setup WordPress depuis `sites/<slug>/backups/<date>/`.
+- [ ] **US-F** (validation) : Automatiser les vérifications post-restore (curl, logs, checklist) et consigner le résultat.
+
 ## Sprint 1 - COMPLÉTÉE ✅ (Nov 9, 2025)
 
 ### MVP - Sauvegarde + Chargement + Adaptation WordPress
